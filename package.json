@@ -1,0 +1,71 @@
+{
+  "name": "ytlive-reservation",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reservation system for YouTube Live.",
+  "author": {
+    "name": "SASAPIYO"
+  },
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "serve:debug": "vue-cli-service serve --debug",
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "electron:build": "vue-cli-service electron:build",
+    "electron:serve": "vue-cli-service electron:serve",
+    "electron:debug": "vue-cli-service electron:serve --debug",
+    "postinstall": "electron-builder install-app-deps",
+    "postuninstall": "electron-builder install-app-deps",
+    "start": "babel-node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "main": "background.js",
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "google-auth-library": "^6.1.4",
+    "googleapis": "^67.0.0",
+    "vue": "^3.0.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "~4.5.0",
+    "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-service": "~4.5.0",
+    "@vue/compiler-sfc": "^3.0.0",
+    "babel-eslint": "^10.1.0",
+    "electron": "^9.0.0",
+    "electron-devtools-installer": "^3.1.0",
+    "eslint": "^6.7.2",
+    "eslint-plugin-vue": "^7.0.0-0",
+    "vue-cli-plugin-electron-builder": "~2.0.0-rc.5"
+  },
+  "eslintConfig": {
+    "root": true,
+    "env": {
+      "node": true
+    },
+    "extends": [
+      "plugin:vue/vue3-essential",
+      "eslint:recommended"
+    ],
+    "parserOptions": {
+      "parser": "babel-eslint"
+    },
+    "rules": {}
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ],
+  "_id": "ytlive-reservation@1.0.0",
+  "bugs": {
+    "url": "https://github.com/sasagar/ytlive-resvation/issues"
+  },
+  "homepage": "https://github.com/sasagar/ytlive-resvation#readme",
+  "license": "GPL-2.0",
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sasagar/ytlive-resvation.git"
+  }
+}
