@@ -1,17 +1,48 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
-  <HelloWorld msg="Welcome to Your Vue.js App"/>
+  <component :is="currentView" :status="status" />
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Loading from "./components/Loading.vue";
+import LiveList from "./components/LiveList.vue";
+
+import { ipcRenderer } from "electron";
 
 export default {
-  name: 'App',
+  name: "App",
   components: {
-    HelloWorld
-  }
-}
+    Loading,
+  },
+  methods: {
+    loading() {
+      this.currentView = "Loading";
+    },
+    setLives: function (arg) {
+      let obj = {
+        msg: this.status.msg,
+        lives: arg,
+        currentLiveId: this.status.currentLiveId,
+      };
+      this.status = obj;
+    },
+  },
+  mounted() {
+    ipcRenderer.on("test", (event, arg) => {
+      this.setLives(JSON.parse(arg));
+      this.currentView = LiveList;
+    });
+  },
+  data() {
+    return {
+      currentView: "Loading",
+      status: {
+        msg: "Waiting for Live data.",
+        lives: {},
+        currentLiveId: "",
+      },
+    };
+  },
+};
 </script>
 
 <style>
@@ -21,6 +52,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>

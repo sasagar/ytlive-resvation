@@ -1,6 +1,10 @@
 module.exports = {
+    transpileDependencies: [
+        'vuetify'
+    ],
     pluginOptions: {
         electronBuilder: {
+            nodeIntegration: true,
             builderOptions: {
                 productName: "YouTube Reservation",
                 appId: "com.kent-and-co.ytlive-reservation",

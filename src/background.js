@@ -1,50 +1,44 @@
 'use strict'
 
-import { app, protocol, BrowserWindow } from 'electron'
-import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { app, protocol, BrowserWindow, ipcMain } from 'electron'
+// import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from 'electron-devtools-installer'
 import Google from './backend-modules/google';
 
-const isDevelopment = process.env.NODE_ENV !== 'production'
-// const fs = require('fs');
+// import * as http from 'http';
+// const NodeStatic = require('node-static');
 
-// let secret;
 const google = new Google();
+const isDevelopment = process.env.NODE_ENV !== 'production'
 
+// const socketIO = require("socket.io");
+// const io = socketIO(http);
 
-// new Promise((res, rej) => {
-//   try {
-//     fs.readFile(
-//       'client_secret.json',
-//       function processClientSecrets(err, content) {
-//         if (err) {
-//           console.log('Error loading client secret file: ' + err);
-//           return;
-//         }
-//         secret = JSON.parse(content);
-//         google = new Google(secret);
-//         res();
-//       }
-//     );
-//   } catch (error) {
-//     rej(error);
-//   }
-// });
+// const PORT = 8081;
+
+// let lives;
+
+let win;
 
 // Scheme must be registered before the app is ready
 protocol.registerSchemesAsPrivileged([
   { scheme: 'app', privileges: { secure: true, standard: true } }
 ])
 
+// const file = new NodeStatic.Server(__dirname + '../public');
+// const server = http.createServer();
+// server.listen(PORT);
+
 async function createWindow() {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 800,
     height: 600,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
-      nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      //nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
+      nodeIntegration: true
     }
   })
 
@@ -53,9 +47,10 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL)
     if (!process.env.IS_TEST) win.webContents.openDevTools()
   } else {
-    createProtocol('app')
-    // Load the index.html when not in development
-    win.loadURL('app://./index.html')
+    // createProtocol('app')
+    // // Load the index.html when not in development
+    // win.loadURL('app://./index.html')
+    win.loadURL(`http://localhost/index.html`);
   }
 }
 
@@ -80,6 +75,7 @@ app.on('activate', () => {
 app.on('ready', async () => {
   google.secret_file = 'client_secret.json';
   google.auth();
+  // console.log(google.getChannel());
   if (isDevelopment && !process.env.IS_TEST) {
     // Install Vue Devtools
     try {
@@ -89,6 +85,16 @@ app.on('ready', async () => {
     }
   }
   createWindow()
+
+  let lives;
+  google.livelist = [];
+  setTimeout(
+    async () => {
+      lives = await google.getChannel();
+      win.webContents.send('test', JSON.stringify(lives));
+    },
+    5000
+  )
 })
 
 // Exit cleanly on request from parent process in development mode.

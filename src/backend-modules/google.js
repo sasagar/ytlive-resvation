@@ -10,23 +10,29 @@ const TOKEN_PATH = TOKEN_DIR + 'youtube.json';
 export default class Google {
   constructor() {
     this.secret_file = '';
+    this.oauth = '';
+    this.livelist = '';
   }
 
-  get secret_file() {
-    return this._secret_file;
-  }
+  get secret_file() { return this._secret_file; }
 
-  set secret_file(filename) {
-    this._secret_file = filename;
-  }
+  set secret_file(filename) { this._secret_file = filename; }
+
+  get oauth() { return this._oauth; }
+
+  set oauth(value) { this._oauth = value; }
+
+  get livelist() { return this._livelist; }
+
+  set livelist(value) { this._livelist = value; }
+
 
   auth() {
     fs.readFile(
       this._secret_file,
-      (err, content) => {
+      async (err, content) => {
         if (err) {
           console.log('Error loading client secret file: ' + err);
-          return;
         }
         // Authorize a client with the loaded credentials, then call the YouTube API.
         this.authorize(JSON.parse(content), this.getChannel);
@@ -53,6 +59,7 @@ export default class Google {
         this.getNewToken(oauth2Client, callback);
       } else {
         oauth2Client.credentials = JSON.parse(token);
+        this._oauth = oauth2Client;
         callback(oauth2Client);
       }
     });
@@ -114,25 +121,32 @@ export default class Google {
    *
    * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
    */
-  getChannel(auth) {
+  getChannel(auth = this._oauth) {
     var service = google.youtube('v3');
 
-    service.liveBroadcasts.list({
-      auth: auth,
-      part: 'id,snippet,contentDetails,status',
-      broadcastStatus: 'upcoming',
-      mime: true
-    }, (err, response) => {
-      if (err) {
-        console.log('The API returned an error: ' + err);
-        return;
-      }
-      var lives = response.data.items;
-      if (lives.length == 0) {
+    return new Promise((res, rej) => {
+      service.liveBroadcasts.list({
+        auth: auth,
+        part: 'id,snippet,contentDetails,status',
+        broadcastStatus: 'upcoming',
+        mime: true
+      }, (err, response) => {
+        if (err) {
+          console.log('The API returned an error: ' + err);
+          rej(err);
+        }
+        res(response.data.items);
+      });
+    }).then((response) => {
+      this._livelist = response;
+    }).then(() => {
+      if (this._livelist.length == 0) {
         console.log('No live found.');
       } else {
-        console.log(lives);
+        return this._livelist;
       }
+    }).catch((e) => {
+      console.error(e);
     });
   }
 }
