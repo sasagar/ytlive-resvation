@@ -1,7 +1,7 @@
 <template>
   <h2>Live List</h2>
   <div v-for="live in status.lives" :key="live.id">
-    <Live :live="live" />
+    <Live :live="live" @click="liveSelect" />
   </div>
 </template>
 
@@ -24,6 +24,11 @@ export default {
       set(value) {
         this.$emit("update:data", value);
       },
+    },
+  },
+  methods: {
+    liveSelect() {
+      this.$emit("liveSelect");
     },
   },
 };

@@ -11,6 +11,7 @@ export default {
   props: {
     live: Object,
   },
+  methods: {},
 };
 </script>
 

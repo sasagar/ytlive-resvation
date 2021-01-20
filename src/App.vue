@@ -1,5 +1,5 @@
 <template>
-  <component :is="currentView" :status="status" />
+  <component :is="currentView" :status="status" @liveSelect="liveSelect" />
 </template>
 
 <script>
@@ -24,6 +24,9 @@ export default {
         currentLiveId: this.status.currentLiveId,
       };
       this.status = obj;
+    },
+    liveSelect(liveId) {
+      console.log(liveId);
     },
   },
   mounted() {
