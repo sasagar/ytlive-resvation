@@ -1,7 +1,7 @@
 import router from "/src/router";
 import { createStore } from "vuex";
 
-const io = require("socket.io-client");
+import * as io from "socket.io-client";
 const socket = io("http://localhost:8081");
 
 export default createStore({

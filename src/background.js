@@ -5,6 +5,9 @@ import { app, protocol, BrowserWindow } from "electron";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
+// import ElectronStore from 'electron-store';
+// const conf = new ElectronStore();
+
 const http = require("http");
 const server = http.createServer((req, res) => {
   res.writeHead(200, { "Content-Type": "text/html" });
