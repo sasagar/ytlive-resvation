@@ -1,5 +1,7 @@
 <template>
-  <component :is="this.currentView" />
+  <transition name="main" mode="out-in">
+    <component :is="this.currentView" />
+  </transition>
 </template>
 
 <script>
@@ -47,5 +49,18 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+.main-enter-active,
+.main-leave-active {
+  transition: all 0.3s linear;
+}
+.main-enter {
+  left: 10px;
+  opacity: 0;
+}
+.main-leave-to {
+  left: -10px;
+  opacity: 0;
 }
 </style>
