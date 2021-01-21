@@ -8,14 +8,14 @@
   },
   "scripts": {
     "serve": "vue-cli-service serve",
-    "serve:debug": "vue-cli-service serve --debug",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "electron:build": "vue-cli-service electron:build",
-    "electron:serve": "vue-cli-service electron:serve",
     "electron:debug": "vue-cli-service electron:serve --debug",
+    "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
     "postuninstall": "electron-builder install-app-deps",
+    "serve:debug": "vue-cli-service serve --debug",
     "start": "babel-node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -24,13 +24,16 @@
     "core-js": "^3.6.5",
     "google-auth-library": "^6.1.4",
     "googleapis": "^67.0.0",
+    "moment": "^2.29.1",
     "node-static": "^0.7.11",
     "socket.io": "^3.1.0",
-    "vue": "^3.0.0"
+    "vue": "^3.0.0",
+    "vuex": "^4.0.0-0"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
+    "@vue/cli-plugin-vuex": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0",
     "babel-eslint": "^10.1.0",
@@ -38,6 +41,8 @@
     "electron-devtools-installer": "^3.1.0",
     "eslint": "^6.7.2",
     "eslint-plugin-vue": "^7.0.0-0",
+    "node-sass": "^5.0.0",
+    "sass-loader": "^10.1.1",
     "vue-cli-plugin-electron-builder": "~2.0.0-rc.5"
   },
   "eslintConfig": {

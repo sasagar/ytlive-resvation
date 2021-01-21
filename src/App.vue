@@ -1,10 +1,14 @@
 <template>
-  <component :is="currentView" :status="status" @liveSelect="liveSelect" />
+  <component :is="this.currentView" />
 </template>
 
 <script>
+import { mapActions, mapState } from "vuex";
+
 import Loading from "./components/Loading.vue";
+import LiveNotFound from "./components/LiveNotFound.vue";
 import LiveList from "./components/LiveList.vue";
+import LiveDashboard from "./components/LiveDashboard.vue";
 
 import { ipcRenderer } from "electron";
 
@@ -12,43 +16,31 @@ export default {
   name: "App",
   components: {
     Loading,
+    LiveNotFound,
+    LiveList,
+    LiveDashboard
   },
   methods: {
-    loading() {
-      this.currentView = "Loading";
-    },
-    setLives: function (arg) {
-      let obj = {
-        msg: this.status.msg,
-        lives: arg,
-        currentLiveId: this.status.currentLiveId,
-      };
-      this.status = obj;
-    },
-    liveSelect(liveId) {
-      console.log(liveId);
-    },
+    ...mapActions(["changeView", "setLives"])
   },
-  mounted() {
-    ipcRenderer.on("test", (event, arg) => {
-      this.setLives(JSON.parse(arg));
-      this.currentView = LiveList;
-    });
-  },
-  data() {
-    return {
-      currentView: "Loading",
-      status: {
-        msg: "Waiting for Live data.",
-        lives: {},
-        currentLiveId: "",
-      },
-    };
-  },
+  computed: { ...mapState(["currentView", "status"]) },
+  async mounted() {
+    console.log("App/mounted");
+    const lives = await ipcRenderer.invoke("getLives");
+    if (lives.length < 1) {
+      this.changeView("LiveNotFound");
+    } else {
+      await this.setLives(lives);
+      this.changeView("LiveList");
+    }
+  }
 };
 </script>
 
 <style>
+body {
+  background-color: #ffffff;
+}
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

@@ -14,11 +14,17 @@
 </template>
 
 <script>
+import { mapState } from "vuex";
+
 export default {
   name: "Loading",
-  props: {
-    status: Object,
+  computed: {
+    ...mapState(["status"]),
+    msg() {
+      return this.status.msg;
+    }
   },
+  mounted() {}
 };
 </script>
 
