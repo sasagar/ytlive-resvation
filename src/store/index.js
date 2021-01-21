@@ -1,3 +1,4 @@
+import router from "/src/router";
 import { createStore } from "vuex";
 
 export default createStore({
@@ -10,9 +11,16 @@ export default createStore({
     },
   },
   mutations: {
-    changeView(state, viewName) {
+    changeView(state, view) {
       console.log("store/mutations/changeView");
+      const viewName = view.viewName;
+      const id = view.id;
       state.currentView = viewName;
+      if (id) {
+        router.push({ name: viewName, params: { id } });
+      } else {
+        router.push(viewName);
+      }
     },
     setLives(state, payload) {
       console.log("store/mutations/setLives");

@@ -33,7 +33,7 @@ export default {
     async setCurrent(liveId) {
       console.log("components/Live/setCurrent: " + liveId);
       await this.setCurrentLive(liveId);
-      this.changeView("LiveDashboard");
+      this.changeView({ viewName: "LiveDashboard", id: liveId });
     }
   }
 };

@@ -1,27 +1,18 @@
 <template>
-  <transition name="main" mode="out-in">
-    <component :is="this.currentView" />
-  </transition>
+  <router-view v-slot="{ Component }">
+    <transition name="main" mode="out-in">
+      <component :is="Component" />
+    </transition>
+  </router-view>
 </template>
 
 <script>
 import { mapActions, mapState } from "vuex";
 
-import Loading from "./components/Loading.vue";
-import LiveNotFound from "./components/LiveNotFound.vue";
-import LiveList from "./components/LiveList.vue";
-import LiveDashboard from "./components/LiveDashboard.vue";
-
 import { ipcRenderer } from "electron";
 
 export default {
   name: "App",
-  components: {
-    Loading,
-    LiveNotFound,
-    LiveList,
-    LiveDashboard
-  },
   methods: {
     ...mapActions(["changeView", "setLives"])
   },
@@ -30,10 +21,10 @@ export default {
     console.log("App/mounted");
     const lives = await ipcRenderer.invoke("getLives");
     if (lives.length < 1) {
-      this.changeView("LiveNotFound");
+      this.changeView({ viewName: "LiveNotFound" });
     } else {
       await this.setLives(lives);
-      this.changeView("LiveList");
+      this.changeView({ viewName: "LiveList" });
     }
   }
 };
@@ -49,18 +40,28 @@ body {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+  overflow: hidden;
 }
 
-.main-enter-active,
-.main-leave-active {
-  transition: all 0.3s linear;
-}
-.main-enter {
-  left: 10px;
+.main-enter-from {
+  transform: translate(100px, 0);
   opacity: 0;
+}
+.main-enter-to {
+  opacity: 1;
+}
+.main-enter-active {
+  transition: all 0.5s 0s ease;
+}
+.main-leave-from {
+  transform: translate(0, 0);
+  opacity: 1;
 }
 .main-leave-to {
-  left: -10px;
+  transform: translate(-100px, 0);
   opacity: 0;
+}
+.main-leave-active {
+  transition: all 0.5s 0s ease;
 }
 </style>
