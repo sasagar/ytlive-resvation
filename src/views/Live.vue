@@ -1,5 +1,5 @@
 <template>
-  <tr class="live" @click="setCurrent(live.id)">
+  <tr class="live" @click="setCurrent(live.id, live.snippet.liveChatId)">
     <td>{{ formatDate }} {{ formatTime }}</td>
     <td>
       {{ live.snippet.title }}
@@ -25,15 +25,16 @@ export default {
       return this.date.format("YYYY/MM/DD");
     },
     formatTime() {
-      return this.date.format("HH:MM");
+      return this.date.format("HH:mm");
     }
   },
   methods: {
-    ...mapActions(["changeView", "setCurrentLive"]),
-    async setCurrent(liveId) {
+    ...mapActions(["changeView", "setCurrentLive", "setCurrentChat"]),
+    async setCurrent(liveId, liveChatId) {
       console.log("components/Live/setCurrent: " + liveId);
       await this.setCurrentLive(liveId);
-      this.changeView({ viewName: "LiveDashboard", id: liveId });
+      await this.setCurrentChat(liveChatId);
+      this.changeView({ viewName: "LiveDashboard", id: liveChatId });
     }
   }
 };

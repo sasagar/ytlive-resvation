@@ -1,22 +1,26 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, ipcMain } from "electron";
+import { app, protocol, BrowserWindow } from "electron";
 // import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
-// import * as http from 'http';
-// const NodeStatic = require('node-static');
+const http = require("http");
+const server = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/html" });
+  res.end("OK");
+});
 
 const google = new Google();
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-// const socketIO = require("socket.io");
-// const io = socketIO(http);
+const PORT = 8081;
 
-// const PORT = 8081;
+server.listen(PORT, () => {
+  console.log(PORT + "でサーバーが起動しました");
+});
 
-// let lives;
+const io = require("socket.io")(server);
 
 let win;
 
@@ -24,10 +28,6 @@ let win;
 protocol.registerSchemesAsPrivileged([
   { scheme: "app", privileges: { secure: true, standard: true } },
 ]);
-
-// const file = new NodeStatic.Server(__dirname + '../public');
-// const server = http.createServer();
-// server.listen(PORT);
 
 async function createWindow() {
   // Create the browser window.
@@ -39,6 +39,7 @@ async function createWindow() {
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       //nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
       nodeIntegration: true,
+      webSecurity: false,
     },
   });
 
@@ -109,7 +110,18 @@ if (isDevelopment) {
   }
 }
 
-ipcMain.handle("getLives", async () => {
-  const lives = await google.getChannel();
-  return lives;
+io.on("connection", (socket) => {
+  socket.on("liveListRequest", async () => {
+    const lives = await google.getChannel();
+    io.emit("liveListResponse", lives);
+  });
+
+  socket.on("setChatId", (liveChatId) => {
+    google.liveChatId = liveChatId;
+  });
+
+  socket.on("getChatRequest", async (token) => {
+    const data = await google.getChat(token);
+    io.emit("getChatResponse", data);
+  });
 });

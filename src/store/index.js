@@ -1,6 +1,9 @@
 import router from "/src/router";
 import { createStore } from "vuex";
 
+const io = require("socket.io-client");
+const socket = io("http://localhost:8081");
+
 export default createStore({
   state: {
     currentView: "Loading",
@@ -8,6 +11,9 @@ export default createStore({
       msg: "Waiting for Live data.",
       lives: {},
       currentLiveId: "",
+      currentChatId: "",
+      nextPageToken: "",
+      chatData: [],
     },
   },
   mutations: {
@@ -30,6 +36,18 @@ export default createStore({
       console.log("store/mutations/setCurrentLive");
       state.status.currentLiveId = payload;
     },
+    setCurrentChat(state, payload) {
+      console.log("store/mutations/setCurrentChat");
+      state.status.currentChatId = payload;
+    },
+    setNextPageToken(state, payload) {
+      console.log("store/mutations/setNextPageToken");
+      state.status.nextPageToken = payload;
+    },
+    setChatData(state, payload) {
+      console.log("store/mutations/setChatData");
+      state.status.chatData = state.status.chatData.concat(payload);
+    },
   },
   actions: {
     changeView(context, payload) {
@@ -43,6 +61,19 @@ export default createStore({
     setCurrentLive(context, payload) {
       console.log("store/actions/setCurrentLive");
       context.commit("setCurrentLive", payload);
+    },
+    setCurrentChat(context, payload) {
+      console.log("store/actions/setCurrentChat");
+      socket.emit("setChatId", payload);
+      context.commit("setCurrentChat", payload);
+    },
+    setNextPageToken(context, payload) {
+      console.log("store/actions/setNextPageToken");
+      context.commit("setNextPageToken", payload);
+    },
+    setChatData(context, payload) {
+      console.log("store/actions/setChatData");
+      context.commit("setChatData", payload);
     },
   },
   modules: {},

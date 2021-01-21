@@ -8,8 +8,8 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
-
-import { ipcRenderer } from "electron";
+const io = require("socket.io-client");
+const socket = io("http://localhost:8081");
 
 export default {
   name: "App",
@@ -19,13 +19,16 @@ export default {
   computed: { ...mapState(["currentView", "status"]) },
   async mounted() {
     console.log("App/mounted");
-    const lives = await ipcRenderer.invoke("getLives");
-    if (lives.length < 1) {
-      this.changeView({ viewName: "LiveNotFound" });
-    } else {
-      await this.setLives(lives);
-      this.changeView({ viewName: "LiveList" });
-    }
+    socket.emit("liveListRequest");
+    socket.on("liveListResponse", async JSON => {
+      const lives = JSON;
+      if (lives.length < 1) {
+        this.changeView({ viewName: "LiveNotFound" });
+      } else {
+        await this.setLives(lives);
+        this.changeView({ viewName: "LiveList" });
+      }
+    });
   }
 };
 </script>

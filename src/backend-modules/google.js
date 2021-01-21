@@ -12,6 +12,7 @@ export default class Google {
     this.secret_file = "";
     this.oauth = "";
     this.livelist = "";
+    this.liveChatId = "";
   }
 
   get secret_file() {
@@ -36,6 +37,14 @@ export default class Google {
 
   set livelist(value) {
     this._livelist = value;
+  }
+
+  get liveChatId() {
+    return this._liveChatId;
+  }
+
+  set liveChatId(value) {
+    this._liveChatId = value;
   }
 
   auth() {
@@ -159,5 +168,34 @@ export default class Google {
       .catch((e) => {
         console.error(e);
       });
+  }
+
+  /**
+   * Get list of chats.
+   *
+   * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+   */
+  getChat(pageToken = "", id = this._liveChatId, auth = this._oauth) {
+    var service = google.youtube("v3");
+
+    return new Promise((res, rej) => {
+      service.liveChatMessages.list(
+        {
+          auth: auth,
+          part: "id, snippet, authorDetails",
+          pageToken,
+          liveChatId: id,
+        },
+        (err, response) => {
+          if (err) {
+            console.log("The API returned an error: " + err);
+            rej(err);
+          }
+          res(response.data);
+        }
+      );
+    }).catch((e) => {
+      console.error(e);
+    });
   }
 }
