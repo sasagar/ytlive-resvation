@@ -1,11 +1,17 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Loading from "../views/Loading.vue";
+import Display from "../views/Display.vue";
 
 const routes = [
   {
     path: "/",
     name: "Loading",
     component: Loading,
+  },
+  {
+    path: "/display",
+    name: "Display",
+    component: Display,
   },
   {
     path: "/livelist",
