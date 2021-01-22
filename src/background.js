@@ -1,12 +1,41 @@
 "use strict";
 
-import { app, protocol, BrowserWindow } from "electron";
+import { app, protocol, BrowserWindow, shell } from "electron";
 // import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
-// import ElectronStore from 'electron-store';
-// const conf = new ElectronStore();
+// const readline = require("readline");
+
+import ElectronStore from "electron-store";
+
+const schema = {
+  queue: {
+    type: "array",
+    default: [],
+  },
+  timerInterval: {
+    type: "number",
+    minimum: 5000,
+    default: 8000,
+  },
+  numberOfPlaying: {
+    type: "number",
+    minimum: 1,
+    default: 3,
+  },
+  numberOfStandby: {
+    type: "number",
+    minimum: 0,
+    default: 2,
+  },
+  reserveKeyword: {
+    type: "string",
+    format: "regex",
+  },
+};
+
+const conf = new ElectronStore({ schema });
 
 const http = require("http");
 const server = http.createServer((req, res) => {
@@ -23,7 +52,11 @@ server.listen(PORT, () => {
   console.log(PORT + "でサーバーが起動しました");
 });
 
-const io = require("socket.io")(server);
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+  },
+});
 
 let win;
 
@@ -41,7 +74,7 @@ async function createWindow() {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
       //nodeIntegration: process.env.ELECTRON_NODE_INTEGRATION
-      nodeIntegration: true,
+      nodeIntegration: false,
       webSecurity: false,
     },
   });
@@ -54,7 +87,7 @@ async function createWindow() {
     // createProtocol('app')
     // // Load the index.html when not in development
     // win.loadURL('app://./index.html')
-    win.loadURL(`http://localhost/index.html`);
+    win.loadURL(`http://localhost/`);
   }
 }
 
@@ -78,24 +111,32 @@ app.on("activate", () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
   google.secret_file = "client_secret.json";
-  google.auth();
-  // console.log(google.getChannel());
-  if (isDevelopment && !process.env.IS_TEST) {
-    // Install Vue Devtools
-    try {
-      await installExtension(VUEJS_DEVTOOLS);
-    } catch (e) {
-      console.error("Vue Devtools failed to install:", e.toString());
+  const check = await google.authCheck();
+  if (check) {
+    google.auth();
+    // console.log(google.getChannel());
+    if (isDevelopment && !process.env.IS_TEST) {
+      // Install Vue Devtools
+      try {
+        await installExtension(VUEJS_DEVTOOLS);
+      } catch (e) {
+        console.error("Vue Devtools failed to install:", e.toString());
+      }
     }
-  }
-  createWindow();
+    createWindow();
 
-  let lives;
-  google.livelist = [];
-  setTimeout(async () => {
-    lives = await google.getChannel();
-    win.webContents.send("test", JSON.stringify(lives));
-  }, 5000);
+    let lives;
+    google.livelist = [];
+    setTimeout(async () => {
+      lives = await google.getChannel();
+      win.webContents.send("test", JSON.stringify(lives));
+    }, 5000);
+  } else {
+    const url = await google.authStep();
+    shell.openExternal(url);
+
+    createWindow();
+  }
 });
 
 // Exit cleanly on request from parent process in development mode.
@@ -126,5 +167,69 @@ io.on("connection", (socket) => {
   socket.on("getChatRequest", async (token) => {
     const data = await google.getChat(token);
     io.emit("getChatResponse", data);
+  });
+
+  // Save / Get config.
+  socket.on("saveQueue", (data) => {
+    conf.set("queue", data);
+  });
+
+  socket.on("saveTimerInterval", (data) => {
+    conf.set("timerInterval", data);
+  });
+
+  socket.on("saveNumberOfPlaying", (data) => {
+    conf.set("numberOfPlaying", data);
+  });
+
+  socket.on("saveNumberOfStandby", (data) => {
+    conf.set("numberOfStandby", data);
+  });
+
+  socket.on("saveReserveKeyword", (data) => {
+    conf.set("reserveKeyword", data);
+  });
+
+  socket.on("getQueueRequest", async () => {
+    const data = await conf.get("queue", []);
+    io.emit("getQueueResponse", data);
+  });
+
+  socket.on("getTimerIntervalRequest", async () => {
+    const data = await conf.get("timerInterval");
+    io.emit("getTimerIntervalResponse", data);
+  });
+
+  socket.on("getNumberOfPlayingRequest", async () => {
+    const data = await conf.get("numberOfPlaying");
+    io.emit("getNumberOfPlayingResponse", data);
+  });
+
+  socket.on("getNumberOfStandbyRequest", async () => {
+    const data = await conf.get("numberOfStandby");
+    io.emit("getNumberOfStandbyResponse", data);
+  });
+
+  socket.on("getReserveKeywordRequest", async () => {
+    const data = await conf.get("reserveKeyword");
+    io.emit("getReserveKeywordResponse", data);
+  });
+
+  socket.on("setQueue", (data) => {
+    conf.set("queue", data);
+  });
+
+  socket.on("sendReserveMessage", (data) => {
+    google.sendMessage(data);
+  });
+
+  socket.on("setCode", async (data) => {
+    const result = await google.authSecond(data);
+    io.emit("setCodeResult", result);
+  });
+
+  socket.on("authCheck", async () => {
+    const result = await google.authCheck();
+    io.emit("authCheckResult", result);
   });
 });

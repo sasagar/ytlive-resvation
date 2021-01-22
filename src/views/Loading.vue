@@ -14,7 +14,9 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapActions, mapState } from "vuex";
+import * as io from "socket.io-client";
+const socket = io("http://localhost:8081");
 
 export default {
   name: "Loading",
@@ -24,7 +26,64 @@ export default {
       return this.status.msg;
     }
   },
-  mounted() {}
+  methods: {
+    ...mapActions([
+      "changeView",
+      "setLives",
+      "setQueue",
+      "setTimerInterval",
+      "setNumberOfPlaying",
+      "setNumberOfStandby",
+      "setReserveKeyword"
+    ])
+  },
+  async mounted() {
+    console.log("App/mounted");
+    socket.emit("authCheck");
+
+    socket.on("authCheckResult", res => {
+      if (res) {
+        // Live list request for Electron.
+        socket.emit("liveListRequest");
+      } else {
+        this.changeView({ viewName: "GoogleAuth" });
+      }
+    });
+
+    // Recieve live list from Electron.
+    socket.on("liveListResponse", async JSON => {
+      const lives = JSON;
+      if (lives.length < 1) {
+        this.changeView({ viewName: "LiveNotFound" });
+      } else {
+        await this.setLives(lives);
+        this.changeView({ viewName: "LiveList" });
+      }
+
+      // Conf requests for Electron.
+      socket.emit("getQueueRequest");
+      socket.emit("getTimerIntervalRequest");
+      socket.emit("getNumberOfPlayingRequest");
+      socket.emit("getNumberOfStandbyRequest");
+      socket.emit("getReserveKeywordRequest");
+      // Recieve conf from Electron.
+      socket.on("getQueueResponse", async data => {
+        await this.setQueue(data);
+      });
+      socket.on("getTimerIntervalResponse", async data => {
+        await this.setTimerInterval(data);
+      });
+      socket.on("getNumberOfPlayingResponse", async data => {
+        await this.setNumberOfPlaying(data);
+      });
+      socket.on("getNumberOfStandbyResponse", async data => {
+        await this.setNumberOfStandby(data);
+      });
+      socket.on("getReserveKeywordResponse", async data => {
+        await this.setReserveKeyword(data);
+      });
+    });
+  }
 };
 </script>
 

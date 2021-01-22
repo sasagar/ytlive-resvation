@@ -3,7 +3,11 @@ const readline = require("readline");
 const { google } = require("googleapis");
 const OAuth2 = google.auth.OAuth2;
 
-const SCOPES = ["https://www.googleapis.com/auth/youtube.readonly"];
+const SCOPES = [
+  "https://www.googleapis.com/auth/youtube.upload",
+  "https://www.googleapis.com/auth/youtube.readonly",
+  "https://www.googleapis.com/auth/youtube",
+];
 const TOKEN_DIR = ".credentials/";
 const TOKEN_PATH = TOKEN_DIR + "youtube.json";
 
@@ -47,6 +51,19 @@ export default class Google {
     this._liveChatId = value;
   }
 
+  authCheck() {
+    return new Promise((res, rej) => {
+      fs.readFile(TOKEN_PATH, (err) => {
+        if (err) {
+          res(false);
+        } else {
+          res(true);
+        }
+        rej(false);
+      });
+    });
+  }
+
   auth() {
     fs.readFile(this._secret_file, async (err, content) => {
       if (err) {
@@ -82,6 +99,52 @@ export default class Google {
     });
   }
 
+  authStep() {
+    return new Promise((res, rej) => {
+      fs.readFile(this._secret_file, async (err, content) => {
+        if (err) {
+          rej(err);
+        }
+        const credentials = JSON.parse(content);
+        const clientSecret = credentials.installed.client_secret;
+        const clientId = credentials.installed.client_id;
+        const redirectUrl = credentials.installed.redirect_uris[0];
+        const oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
+
+        const authUrl = oauth2Client.generateAuthUrl({
+          access_type: "offline",
+          scope: SCOPES,
+        });
+        res(authUrl);
+      });
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+
+  authSecond(code) {
+    return new Promise((res, rej) => {
+      fs.readFile(this._secret_file, async (err, content) => {
+        const credentials = JSON.parse(content);
+        const clientSecret = credentials.installed.client_secret;
+        const clientId = credentials.installed.client_id;
+        const redirectUrl = credentials.installed.redirect_uris[0];
+        const oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
+
+        oauth2Client.getToken(code, (err, token) => {
+          if (err) {
+            console.log("Error while trying to retrieve access token", err);
+            rej(false);
+          }
+          oauth2Client.credentials = token;
+          this.storeToken(token);
+          this._oauth = oauth2Client;
+          res(true);
+        });
+      });
+    });
+  }
+
   /**
    * Get and store new token after prompting for user authorization, and then
    * execute the given callback with the authorized OAuth2 client.
@@ -96,6 +159,7 @@ export default class Google {
       scope: SCOPES,
     });
     console.log("Authorize this app by visiting this url: ", authUrl);
+
     var rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
@@ -154,7 +218,11 @@ export default class Google {
             console.log("The API returned an error: " + err);
             rej(err);
           }
-          res(response.data.items);
+          try {
+            res(response.data.items);
+          } catch (e) {
+            rej(e);
+          }
         }
       );
     })
@@ -165,8 +233,9 @@ export default class Google {
           return items;
         }
       })
-      .catch((e) => {
-        console.error(e);
+      .catch(() => {
+        return null;
+        // console.error(e);
       });
   }
 
@@ -192,6 +261,44 @@ export default class Google {
             rej(err);
           }
           res(response.data);
+        }
+      );
+    }).catch((e) => {
+      console.error(e);
+    });
+  }
+
+  /**
+   * Send message.
+   *
+   * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
+   * @param liveChatId
+   * @param message
+   */
+  sendMessage(message = "", id = this._liveChatId, auth = this._oauth) {
+    var service = google.youtube("v3");
+
+    return new Promise((res, rej) => {
+      service.liveChatMessages.insert(
+        {
+          auth: auth,
+          part: "snippet",
+          requestBody: {
+            snippet: {
+              liveChatId: id,
+              type: "textMessageEvent",
+              textMessageDetails: {
+                messageText: message,
+              },
+            },
+          },
+        },
+        (err, response) => {
+          if (err) {
+            console.log("The API returned an error: " + err);
+            rej(err);
+          }
+          res(response);
         }
       );
     }).catch((e) => {

@@ -7,31 +7,8 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
-import * as io from "socket.io-client";
-const socket = io("http://localhost:8081");
-
 export default {
-  name: "App",
-  methods: {
-    ...mapActions(["changeView", "setLives"])
-  },
-  computed: { ...mapState(["currentView", "status"]) },
-  async mounted() {
-    console.log("App/mounted");
-    // Live list request for Electron.
-    socket.emit("liveListRequest");
-    // Recieve live list from Electron.
-    socket.on("liveListResponse", async JSON => {
-      const lives = JSON;
-      if (lives.length < 1) {
-        this.changeView({ viewName: "LiveNotFound" });
-      } else {
-        await this.setLives(lives);
-        this.changeView({ viewName: "LiveList" });
-      }
-    });
-  }
+  name: "App"
 };
 </script>
 

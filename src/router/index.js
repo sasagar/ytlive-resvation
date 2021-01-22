@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Loading from "../views/Loading.vue";
 import Display from "../views/Display.vue";
+import GoogleAuth from "../views/GoogleAuth.vue";
 
 const routes = [
   {
@@ -12,6 +13,11 @@ const routes = [
     path: "/display",
     name: "Display",
     component: Display,
+  },
+  {
+    path: "/googleauth",
+    name: "GoogleAuth",
+    component: GoogleAuth,
   },
   {
     path: "/livelist",
