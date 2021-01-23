@@ -14,22 +14,69 @@
       <div class="queue-container">
         <div class="queue-control">
           <span>
-            <FontAwesomeIcon :icon="faUsersSlash" class="users-slash" />
+            <FontAwesomeIcon
+              :icon="faUsersSlash"
+              class="users-slash"
+              @click="clearQueue"
+            />
           </span>
           <span>
-            <FontAwesomeIcon :icon="faAngleDoubleDown" class="requeues" />1
+            <FontAwesomeIcon
+              :icon="faAngleDoubleDown"
+              class="requeues"
+              @click="reQueue(1)"
+            />1
           </span>
           <span>
-            <FontAwesomeIcon :icon="faAngleDoubleDown" class="requeues" />2
+            <FontAwesomeIcon
+              :icon="faAngleDoubleDown"
+              class="requeues"
+              @click="reQueue(2)"
+            />2
           </span>
           <span>
-            <FontAwesomeIcon :icon="faAngleDoubleDown" class="requeues" />3
+            <FontAwesomeIcon
+              :icon="faAngleDoubleDown"
+              class="requeues"
+              @click="reQueue(3)"
+            />3
           </span>
           <span>
-            <FontAwesomeIcon :icon="faAngleDoubleDown" class="requeues" />4
+            <FontAwesomeIcon
+              :icon="faAngleDoubleDown"
+              class="requeues"
+              @click="reQueue(4)"
+            />4
           </span>
           <span>
-            <FontAwesomeIcon :icon="faAngleDoubleDown" class="requeues" />5
+            <FontAwesomeIcon
+              :icon="faAngleDoubleDown"
+              class="requeues"
+              @click="reQueue(5)"
+            />5
+          </span>
+        </div>
+        <div class="queue-control">
+          <span>
+            <FontAwesomeIcon
+              :icon="faUser"
+              class="requeues"
+              @click="pageAll(1)"
+            />
+          </span>
+          <span>
+            <FontAwesomeIcon
+              :icon="faUserFriends"
+              class="requeues"
+              @click="pageAll(2)"
+            />
+          </span>
+          <span>
+            <FontAwesomeIcon
+              :icon="faUsers"
+              class="requeues"
+              @click="pageAll(3)"
+            />
           </span>
         </div>
         <ul class="queuelist">
@@ -56,7 +103,10 @@ import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faCog,
   faUsersSlash,
-  faAngleDoubleDown
+  faAngleDoubleDown,
+  faUser,
+  faUsers,
+  faUserFriends
 } from "@fortawesome/free-solid-svg-icons";
 
 import Chat from "./Chat";
@@ -79,7 +129,10 @@ export default {
       modal: false,
       faCog,
       faUsersSlash,
-      faAngleDoubleDown
+      faAngleDoubleDown,
+      faUser,
+      faUsers,
+      faUserFriends
     };
   },
   mixins: [VueTimers, Messages],
@@ -130,6 +183,9 @@ export default {
     },
     queue() {
       return this.status.queue;
+    },
+    queueCount() {
+      return this.status.queue.length;
     }
   },
   methods: {
@@ -156,6 +212,49 @@ export default {
       socket.emit("saveNumberOfStandby", this.standby);
       socket.emit("saveReserveKeyword", this.regex);
       this.modal = false;
+    },
+    clearQueue() {
+      if (confirm("全てのキューをクリアして良いですか？")) {
+        this.setQueue([]);
+      }
+    },
+    reQueue(num) {
+      let count = num;
+      if (num < this.queueCount) {
+        count = this.queueCount;
+        const tempQueue = this.queue.slice(num + 1);
+        const resQueue = [];
+        this.queue.slice(0, num).forEach(user => {
+          user["playing"] = false;
+          resQueue.push(user);
+        });
+        tempQueue.push(resQueue);
+        this.setQueue(tempQueue);
+      } else {
+        const tempQueue = this.queue.slice();
+        const resQueue = [];
+        tempQueue.forEach(user => {
+          user["playing"] = false;
+          resQueue.push(user);
+        });
+        this.setQueue(resQueue);
+      }
+
+      this.sendChat(count + "人の皆様を並び直しました。");
+    },
+    async pageAll(num) {
+      const tempQueue = await this.queue;
+      let names = "";
+
+      tempQueue.forEach((user, i) => {
+        if (i < num) {
+          names += user.displayName + "さん ";
+          tempQueue[i]["playing"] = true;
+        }
+      });
+
+      this.setQueue(tempQueue);
+      this.sendChat("大変お待たせしました。" + names + "、どうぞー。");
     }
   },
   mounted() {
@@ -210,6 +309,7 @@ export default {
   justify-content: space-between;
   flex-wrap: wrap;
   width: 100%;
+  margin-bottom: 20px;
 
   span {
     background-color: rgba(46, 487, 242, 0.5);
@@ -226,6 +326,11 @@ export default {
   margin: 0;
   flex: 1;
 }
+
+.chatlist {
+  margin-left: 30px;
+}
+
 .cog {
   color: rgba(120, 120, 120, 1);
   position: fixed;

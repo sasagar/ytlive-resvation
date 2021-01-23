@@ -122,19 +122,31 @@ li {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    .user-page {
+      margin-right: 15px;
+      cursor: pointer;
+    }
+    .index {
+      margin-right: 15px;
+    }
     img {
       width: 18px;
       height: auto;
-      margin-right: 10px;
+      margin-right: 15px;
     }
     .name {
       font-weight: 600;
+      margin-right: 15px;
     }
     .user-del {
       color: #f2636f;
+      margin-right: 15px;
+      cursor: pointer;
     }
     .user-requeue {
       color: #f2aa6b;
+      margin-right: 15px;
+      cursor: pointer;
     }
   }
   & + li {

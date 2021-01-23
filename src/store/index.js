@@ -104,7 +104,7 @@ export default createStore({
     setQueue(context, payload) {
       console.log("store/actions/setQueue");
       context.commit("setQueue", payload);
-      socket.emit("setQueue", payload);
+      socket.emit("saveQueue", payload);
     },
     setTimerInterval(context, payload) {
       console.log("store/actions/setTimerInterval");

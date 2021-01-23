@@ -170,8 +170,10 @@ io.on("connection", (socket) => {
   });
 
   // Save / Get config.
-  socket.on("saveQueue", (data) => {
+  socket.on("saveQueue", async (data) => {
     conf.set("queue", data);
+    const response = await conf.get("queue", []);
+    io.emit("getQueueResponseOnce", response);
   });
 
   socket.on("saveTimerInterval", (data) => {
@@ -215,10 +217,6 @@ io.on("connection", (socket) => {
     io.emit("getReserveKeywordResponse", data);
   });
 
-  socket.on("setQueue", (data) => {
-    conf.set("queue", data);
-  });
-
   socket.on("sendReserveMessage", (data) => {
     google.sendMessage(data);
   });
@@ -232,4 +230,16 @@ io.on("connection", (socket) => {
     const result = await google.authCheck();
     io.emit("authCheckResult", result);
   });
+
+  socket.on("firstDisplayRequest", async () => {
+    const result = await firstDisplayData();
+    io.emit("firstDisplayResponse", result);
+  });
 });
+
+const firstDisplayData = async () => {
+  const queue = await conf.get("queue", []);
+  const nop = await conf.get("numberOfPlaying", 3);
+  const nos = await conf.get("numberOfStandby", 2);
+  return { queue, numberOfPlaying: nop, numberOfStandby: nos };
+};
