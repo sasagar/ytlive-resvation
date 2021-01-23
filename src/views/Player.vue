@@ -1,6 +1,12 @@
 <template>
-  <li>
+  <li :class="classObj">
     <div class="player">
+      <FontAwesomeIcon
+        @click="pageUser(player, index)"
+        :icon="faVolumeUp"
+        class="user-page"
+      />
+      <span class="index">{{ index + 1 }}</span>
       <img :src="player.profileImageUrl" />
       <span class="name">
         {{ player.displayName }}
@@ -11,6 +17,8 @@
           :icon="faUserSlash"
           class="user-del"
         />
+      </span>
+      <span class="requeue">
         <FontAwesomeIcon
           @click="requeueUser(player)"
           :icon="faAngleDoubleDown"
@@ -23,15 +31,14 @@
 
 <script>
 import { mapActions, mapState } from "vuex";
+import Messages from "../mixins/Messages";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faUserSlash,
-  faAngleDoubleDown
+  faAngleDoubleDown,
+  faVolumeUp
 } from "@fortawesome/free-solid-svg-icons";
-
-import * as io from "socket.io-client";
-const socket = io("http://localhost:8081");
 
 export default {
   name: "Player",
@@ -41,15 +48,29 @@ export default {
   data() {
     return {
       faUserSlash,
-      faAngleDoubleDown
+      faAngleDoubleDown,
+      faVolumeUp
     };
   },
   props: {
-    player: Object
+    player: Object,
+    index: Number
   },
   computed: {
-    ...mapState(["status"])
+    ...mapState(["status", "numberOfPlaying", "numberOfStandby"]),
+    classObj() {
+      if (this.player.playing) {
+        return "playing";
+      } else {
+        if (this.index + 1 > this.numberOfPlaying + this.numberOfStandby) {
+          return "";
+        } else {
+          return "standby";
+        }
+      }
+    }
   },
+  mixins: [Messages],
   methods: {
     ...mapActions(["setQueue"]),
     async delUser(player) {
@@ -58,21 +79,24 @@ export default {
         user => user.channelId != player.channelId
       );
       await this.setQueue(newQueue);
-      socket.emit(
-        "sendReserveMessage",
-        player.displayName + "さんの予約、取り消しましたー！"
-      );
+      this.sendChat(player.displayName + "さんの予約、取り消しましたー！");
     },
     async requeueUser(player) {
       const tempQueue = this.status.queue.slice();
       let newQueue = tempQueue.filter(
         user => user.channelId != player.channelId
       );
+      player["playing"] = false;
       newQueue.push(player);
       await this.setQueue(newQueue);
-      socket.emit(
-        "sendReserveMessage",
-        player.displayName + "さん、並び直しましたー！"
+      this.sendChat(player.displayName + "さん、並び直しましたー！");
+    },
+    async pageUser(player, index) {
+      const tempQueue = this.status.queue.slice();
+      tempQueue[index]["playing"] = true;
+      await this.setQueue(tempQueue);
+      this.sendChat(
+        "大変お待たせしました。" + player.displayName + "さん、どうぞー！"
       );
     }
   }
@@ -83,14 +107,23 @@ export default {
 li {
   border-top: solid 1px #bbbbbb;
   border-bottom: solid 1px #bbbbbb;
-  padding: 10px 20px;
+  padding: 5px 10px;
+  transition: all 0.3s ease;
+
+  &.playing {
+    background-color: rgba(201, 255, 208, 1);
+  }
+
+  &.standby {
+    background-color: rgba(255, 201, 216, 1);
+  }
   .player {
-    font-size: 12px;
+    font-size: 14px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
     img {
-      width: 15px;
+      width: 18px;
       height: auto;
       margin-right: 10px;
     }

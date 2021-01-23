@@ -33,8 +33,8 @@
           </span>
         </div>
         <ul class="queuelist">
-          <template v-for="player in queue" :key="player.channelId">
-            <Player :player="player" />
+          <template v-for="(player, index) in queue" :key="player.channelId">
+            <Player :player="player" :index="index" />
           </template>
         </ul>
       </div>
@@ -50,6 +50,7 @@
 <script>
 import { mapActions, mapState } from "vuex";
 import { mixin as VueTimers } from "vue-timers";
+import Messages from "../mixins/Messages";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -81,7 +82,7 @@ export default {
       faAngleDoubleDown
     };
   },
-  mixins: [VueTimers],
+  mixins: [VueTimers, Messages],
   emits: [
     "timer-tick:getChatTimer",
     "timer-start:getChatTimer",
@@ -179,8 +180,7 @@ export default {
               tempQueue.push(item.authorDetails);
               await this.setQueue(tempQueue);
               // Send reserve chat.
-              socket.emit(
-                "sendReserveMessage",
+              this.sendChat(
                 item.authorDetails.displayName +
                   "さんの予約、受け付けましたー！"
               );
