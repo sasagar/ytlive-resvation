@@ -135,5 +135,13 @@ export default createStore({
       context.commit("setReserveKeyword", payload);
     },
   },
+  getters: {
+    getMatchQueue: (state, channelId) => {
+      console.log(channelId);
+      return state.status.queue.filter((queued) => {
+        queued.channelId === channelId;
+      });
+    },
+  },
   modules: {},
 });

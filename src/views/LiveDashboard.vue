@@ -95,7 +95,7 @@
 </template>
 
 <script>
-import { mapActions, mapState } from "vuex";
+import { mapActions, mapState, mapGetters } from "vuex";
 import { mixin as VueTimers } from "vue-timers";
 import Messages from "../mixins/Messages";
 
@@ -189,6 +189,7 @@ export default {
     }
   },
   methods: {
+    ...mapGetters(["getMatchQueue"]),
     ...mapActions(["setNextPageToken", "setChatData", "setQueue"]),
     getChat() {
       socket.emit("getChatRequest", this.token);
@@ -271,11 +272,8 @@ export default {
           const id = item.authorDetails.channelId;
           if (regexp.test(msg)) {
             const tempQueue = await this.queue.slice();
-            const match = tempQueue.find(queued => {
-              queued.channelId === id;
-              return queued;
-            });
-            if (typeof match === "undefined" || match.length === 0) {
+            const match = this.getMatchQueue(id);
+            if (match.length === 0) {
               tempQueue.push(item.authorDetails);
               await this.setQueue(tempQueue);
               // Send reserve chat.

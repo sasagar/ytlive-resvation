@@ -210,7 +210,7 @@ export default class Google {
         {
           auth: auth,
           part: "id,snippet,contentDetails,status",
-          broadcastStatus: "upcoming",
+          broadcastStatus: ["active", "upcoming"],
           mime: true,
         },
         (err, response) => {
