@@ -40,20 +40,25 @@ h1 {
   transform: translate(100px, 0);
   opacity: 0;
 }
+
 .main-enter-to {
   opacity: 1;
 }
+
 .main-enter-active {
   transition: all 0.5s 0s ease;
 }
+
 .main-leave-from {
   transform: translate(0, 0);
   opacity: 1;
 }
+
 .main-leave-to {
   transform: translate(-100px, 0);
   opacity: 0;
 }
+
 .main-leave-active {
   transition: all 0.5s 0s ease;
 }
