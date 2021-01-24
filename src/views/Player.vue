@@ -1,29 +1,31 @@
 <template>
-  <li :class="classObj">
+  <li :class="classObj" :key="player.channelId">
     <div class="player">
-      <FontAwesomeIcon
-        @click="pageUser(player, index)"
-        :icon="faVolumeUp"
-        class="user-page"
-      />
-      <span class="index">{{ index + 1 }}</span>
-      <img :src="player.profileImageUrl" />
-      <span class="name">
-        {{ player.displayName }}
+      <i
+        :class="this.fixed ? 'fa fa-anchor' : 'glyphicon glyphicon-pushpin'"
+        @click="this.fixed = !this.fixed"
+        aria-hidden="true"
+      ></i>
+      <span class="user-handle">
+        <FontAwesomeIcon :icon="faAlignJustify" />
+      </span>
+      <span class="user-page" @click="pageUser(player, index)">
+        <FontAwesomeIcon :icon="faVolumeUp" />
+      </span>
+      <span class="user-mute" @click="muteUser(index)" :class="paged(index)">
+        <FontAwesomeIcon :icon="faVolumeMute" />
       </span>
       <span class="remove">
         <FontAwesomeIcon
           @click="delUser(player)"
-          :icon="faUserSlash"
+          :icon="faUserMinus"
           class="user-del"
         />
       </span>
-      <span class="requeue">
-        <FontAwesomeIcon
-          @click="requeueUser(player)"
-          :icon="faAngleDoubleDown"
-          class="user-requeue"
-        />
+      <span class="index">{{ index + 1 }}</span>
+      <img :src="player.profileImageUrl" />
+      <span class="name">
+        {{ player.displayName }}
       </span>
     </div>
   </li>
@@ -35,9 +37,10 @@ import Messages from "../mixins/Messages";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
-  faUserSlash,
-  faAngleDoubleDown,
-  faVolumeUp
+  faUserMinus,
+  faVolumeUp,
+  faVolumeMute,
+  faAlignJustify
 } from "@fortawesome/free-solid-svg-icons";
 
 export default {
@@ -47,9 +50,11 @@ export default {
   },
   data() {
     return {
-      faUserSlash,
-      faAngleDoubleDown,
-      faVolumeUp
+      faUserMinus,
+      faVolumeUp,
+      faVolumeMute,
+      faAlignJustify,
+      fixed: false
     };
   },
   props: {
@@ -59,7 +64,7 @@ export default {
   computed: {
     ...mapState(["status", "numberOfPlaying", "numberOfStandby"]),
     classObj() {
-      if (this.player.playing) {
+      if (this.player.playing || typeof this.player.playing === "undefined") {
         return "playing";
       } else {
         if (this.index + 1 > this.numberOfPlaying + this.numberOfStandby) {
@@ -68,11 +73,38 @@ export default {
           return "standby";
         }
       }
+    },
+    queue: {
+      get() {
+        return this.status.queue;
+      },
+      set(val) {
+        this.setQueue(val);
+      }
+    },
+    playing: {
+      get() {
+        return this.player.playing;
+      },
+      set(obj) {
+        this.queue[obj.index].playing = obj.playing;
+      }
     }
   },
   mixins: [Messages],
   methods: {
     ...mapActions(["setQueue"]),
+    paged(index) {
+      console.log("views/Player/paged");
+      if (typeof this.player.playing === "undefined") {
+        this.playing = { index: index, playing: false };
+      }
+      if (this.player.playing) {
+        return { mutable: false };
+      } else {
+        return { mutable: true };
+      }
+    },
     async delUser(player) {
       const tempQueue = this.status.queue.slice();
       const newQueue = tempQueue.filter(
@@ -89,7 +121,11 @@ export default {
       player["playing"] = false;
       newQueue.push(player);
       await this.setQueue(newQueue);
-      this.sendChat(player.displayName + "さん、並び直しましたー！");
+    },
+    async muteUser(index) {
+      const tempQueue = this.status.queue.slice();
+      tempQueue[index].playing = false;
+      await this.setQueue(tempQueue);
     },
     async pageUser(player, index) {
       const tempQueue = this.status.queue.slice();
@@ -108,7 +144,7 @@ li {
   border-top: solid 1px #bbbbbb;
   border-bottom: solid 1px #bbbbbb;
   padding: 5px 10px;
-  transition: all 0.3s ease;
+  transition: background-color 0.3s ease;
 
   &.playing {
     background-color: rgba(201, 255, 208, 1);
@@ -117,30 +153,63 @@ li {
   &.standby {
     background-color: rgba(255, 201, 216, 1);
   }
+  .ghost {
+    opacity: 0.5;
+    background: #c8ebfb;
+  }
   .player {
     font-size: 14px;
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    .user-page {
-      margin-right: 15px;
+
+    .user-handle {
+      cursor: move;
+      padding: 5px;
+      margin-right: 5px;
+    }
+
+    .user-page,
+    .user-mute {
       cursor: pointer;
+      padding: 5px;
+      margin-right: 5px;
     }
+
+    .user-handle,
+    .user-page,
+    .user-mute,
+    .user-del {
+      transition: opacity 0.3s ease;
+      &:hover {
+        opacity: 0.75;
+      }
+    }
+
+    .mutable {
+      opacity: 0.25;
+      transition: none;
+      cursor: not-allowed;
+      &:hover {
+        opacity: 0.25;
+      }
+    }
+
     .index {
-      margin-right: 15px;
+      margin-right: 5px;
     }
+
     img {
       width: 18px;
       height: auto;
-      margin-right: 15px;
+      margin-right: 5px;
     }
     .name {
       font-weight: 600;
-      margin-right: 15px;
     }
     .user-del {
       color: #f2636f;
-      margin-right: 15px;
+      margin-right: 10px;
       cursor: pointer;
     }
     .user-requeue {

@@ -22,43 +22,6 @@
           </span>
           <span>
             <FontAwesomeIcon
-              :icon="faAngleDoubleDown"
-              class="requeues"
-              @click="reQueue(1)"
-            />1
-          </span>
-          <span>
-            <FontAwesomeIcon
-              :icon="faAngleDoubleDown"
-              class="requeues"
-              @click="reQueue(2)"
-            />2
-          </span>
-          <span>
-            <FontAwesomeIcon
-              :icon="faAngleDoubleDown"
-              class="requeues"
-              @click="reQueue(3)"
-            />3
-          </span>
-          <span>
-            <FontAwesomeIcon
-              :icon="faAngleDoubleDown"
-              class="requeues"
-              @click="reQueue(4)"
-            />4
-          </span>
-          <span>
-            <FontAwesomeIcon
-              :icon="faAngleDoubleDown"
-              class="requeues"
-              @click="reQueue(5)"
-            />5
-          </span>
-        </div>
-        <div class="queue-control">
-          <span>
-            <FontAwesomeIcon
               :icon="faUser"
               class="requeues"
               @click="pageAll(1)"
@@ -79,11 +42,32 @@
             />
           </span>
         </div>
-        <ul class="queuelist">
+
+        <draggable
+          class="queuelist"
+          tag="transition-group"
+          :component-data="{
+            tag: 'ul',
+            type: 'transition-group',
+            name: !drag ? 'flip-list' : null,
+          }"
+          v-model="queue"
+          v-bind="dragOptions"
+          @start="drag = true"
+          @end="drag = false"
+          item-key="channelId"
+          handle=".user-handle"
+        >
+          <template #item="{ element, index }">
+            <Player :player="element" :index="index" />
+          </template>
+        </draggable>
+
+        <!-- <ul class="queuelist">
           <template v-for="(player, index) in queue" :key="player.channelId">
             <Player :player="player" :index="index" />
           </template>
-        </ul>
+        </ul> -->
       </div>
       <ul class="chatlist">
         <template v-for="chat in chatData" :key="chat.id">
@@ -98,6 +82,7 @@
 import { mapActions, mapState, mapGetters } from "vuex";
 import { mixin as VueTimers } from "vue-timers";
 import Messages from "../mixins/Messages";
+import draggable from "vuedraggable";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
@@ -122,7 +107,8 @@ export default {
     Chat,
     SettingModal,
     FontAwesomeIcon,
-    Player
+    Player,
+    draggable
   },
   data() {
     return {
@@ -132,7 +118,8 @@ export default {
       faAngleDoubleDown,
       faUser,
       faUsers,
-      faUserFriends
+      faUserFriends,
+      drag: false
     };
   },
   mixins: [VueTimers, Messages],
@@ -150,6 +137,7 @@ export default {
     }
   },
   computed: {
+    ...mapGetters(["getMatchQueue"]),
     ...mapState([
       "status",
       "timerInterval",
@@ -181,16 +169,31 @@ export default {
     regex() {
       return this.reserveKeyword;
     },
-    queue() {
-      return this.status.queue;
+    queue: {
+      get() {
+        return this.status.queue;
+      },
+      set(val) {
+        this.setQueue(val);
+      }
     },
     queueCount() {
       return this.status.queue.length;
+    },
+    dragOptions() {
+      return {
+        animation: 200,
+        group: "description",
+        disabled: false,
+        ghostClass: "ghost"
+      };
     }
   },
   methods: {
-    ...mapGetters(["getMatchQueue"]),
     ...mapActions(["setNextPageToken", "setChatData", "setQueue"]),
+    sort() {
+      this.list = this.list.sort((a, b) => a.order - b.order);
+    },
     getChat() {
       socket.emit("getChatRequest", this.token);
     },
@@ -216,32 +219,8 @@ export default {
     },
     clearQueue() {
       if (confirm("全てのキューをクリアして良いですか？")) {
-        this.setQueue([]);
+        this.queue = [];
       }
-    },
-    reQueue(num) {
-      let count = num;
-      if (num < this.queueCount) {
-        count = this.queueCount;
-        const tempQueue = this.queue.slice(num + 1);
-        const resQueue = [];
-        this.queue.slice(0, num).forEach(user => {
-          user["playing"] = false;
-          resQueue.push(user);
-        });
-        tempQueue.push(resQueue);
-        this.setQueue(tempQueue);
-      } else {
-        const tempQueue = this.queue.slice();
-        const resQueue = [];
-        tempQueue.forEach(user => {
-          user["playing"] = false;
-          resQueue.push(user);
-        });
-        this.setQueue(resQueue);
-      }
-
-      this.sendChat(count + "人の皆様を並び直しました。");
     },
     async pageAll(num) {
       const tempQueue = await this.queue;
@@ -271,7 +250,7 @@ export default {
           const msg = item.snippet.textMessageDetails.messageText;
           const id = item.authorDetails.channelId;
           if (regexp.test(msg)) {
-            const tempQueue = await this.queue.slice();
+            const tempQueue = this.queue;
             const match = this.getMatchQueue(id);
             if (match.length === 0) {
               tempQueue.push(item.authorDetails);
@@ -281,6 +260,10 @@ export default {
                 item.authorDetails.displayName +
                   "さんの予約、受け付けましたー！"
               );
+              // } else {
+              //   this.sendChat(
+              //     item.authorDetails.displayName + "さんの予約は受付済みです！"
+              //   );
             }
           }
         }

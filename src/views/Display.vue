@@ -79,6 +79,7 @@ ul {
     &.playing {
       background-color: #ffa169;
       color: darken(#00d600, 20%);
+      animation: flash 1s linear;
     }
     &.standby {
       background-color: lighten(#ff2089, 30%);
@@ -99,6 +100,18 @@ ul {
     .name {
       text-align: left;
     }
+  }
+}
+
+@keyframes flash {
+  0%,
+  50%,
+  100% {
+    background-color: #ffa169;
+  }
+  25%,
+  75% {
+    background-color: rgba(255, 252, 149, 1);
   }
 }
 </style>

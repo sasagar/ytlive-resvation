@@ -136,11 +136,8 @@ export default createStore({
     },
   },
   getters: {
-    getMatchQueue: (state, channelId) => {
-      console.log(channelId);
-      return state.status.queue.filter((queued) => {
-        queued.channelId === channelId;
-      });
+    getMatchQueue: (state) => (id) => {
+      return state.status.queue.filter((queued) => queued.channelId === id);
     },
   },
   modules: {},

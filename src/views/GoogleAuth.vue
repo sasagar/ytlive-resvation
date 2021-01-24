@@ -1,8 +1,14 @@
 <template>
   <div>
     <h2>GoogleAuth</h2>
-    <input type="text" v-model="code" />
-    <button @click="authrequest">認証</button>
+    <div>
+      <input type="text" v-model="code" />
+      <button @click="authrequest">認証</button>
+    </div>
+    <div>
+      ブラウザで認証画面が開きますので、利用したいYouTubeチャンネルでログインして、アプリの認証を行って下さい。<br />
+      最後には認証コードが表示されるので、コピーしてここに貼り付けた後「認証」を押して認証して下さい。
+    </div>
   </div>
 </template>
 
