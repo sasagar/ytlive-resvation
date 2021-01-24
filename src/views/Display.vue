@@ -1,6 +1,6 @@
 <template>
   <ul>
-    <template v-for="(player, index) in queue" :key="player.channelId">
+    <template v-for="(player, index) in limitQueue" :key="player.channelId">
       <li :class="classObj(player.playing)">
         <span class="number">{{ index + 1 }}</span>
         <img :src="player.profileImageUrl" />
@@ -20,7 +20,7 @@ export default {
   name: "Display",
   data() {
     return {
-      queue: {},
+      queue: [],
       numberOfPlaying: 3,
       numberOfStandby: 2
     };
@@ -35,7 +35,7 @@ export default {
   },
   computed: {
     limitQueue() {
-      return this.queue.slice(0);
+      return this.queue.slice(0, this.numberOfPlaying + this.numberOfStandby);
     }
   },
   mounted() {

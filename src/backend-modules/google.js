@@ -245,7 +245,6 @@ export default class Google {
    * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
    */
   getChat(pageToken = "", id = this._liveChatId, auth = this._oauth) {
-    console.log(pageToken);
     var service = google.youtube("v3");
 
     return new Promise((res, rej) => {

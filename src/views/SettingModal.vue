@@ -28,7 +28,9 @@
               <tr>
                 <th>
                   自動予約キーワード<br />
-                  <span>(正規表現・空欄だと機能停止)</span>
+                  <span
+                    >(正規表現・空欄だと機能停止・大文字小文字の区別無し)</span
+                  >
                 </th>
                 <td><textarea v-model="regex"></textarea></td>
               </tr>
@@ -163,8 +165,10 @@ table {
   tr {
     th {
       padding: 10px 20px 10px 0;
+      font-size: 12px;
+      width: 40%;
       span {
-        font-size: 12px;
+        font-size: 10px;
         font-weight: 300;
       }
     }

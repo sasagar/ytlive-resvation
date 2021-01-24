@@ -13,8 +13,12 @@ export default {
 </script>
 
 <style>
+html {
+  height: 100%;
+}
 body {
   background-color: #ffffff;
+  height: 100%;
 }
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -23,6 +27,13 @@ body {
   text-align: center;
   color: #2c3e50;
   overflow: hidden;
+  height: 100%;
+}
+
+h1 {
+  color: #ff1d5e;
+  border-bottom: solid 3px #ff1d5e;
+  margin-bottom: 20px;
 }
 
 .main-enter-from {

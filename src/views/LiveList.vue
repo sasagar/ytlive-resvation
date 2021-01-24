@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h2>Live List</h2>
+    <h1>Live List</h1>
     <table>
       <thead>
         <tr>

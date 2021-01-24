@@ -47,9 +47,14 @@ $background: #ffffff;
   cursor: pointer;
   border-top: solid 1px #999999;
   border-bottom: solid 1px #999999;
+  transition: background-color 0.3s ease;
 
   &:hover {
-    background-color: darken($background, 10%);
+    background-color: lighten(#ff1d5e, 40%);
+  }
+
+  &:active {
+    background-color: lighten(#ff1d5e, 35%);
   }
 
   td {

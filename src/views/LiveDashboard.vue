@@ -1,40 +1,59 @@
 <template>
-  <div>
+  <div class="dashboard">
     <FontAwesomeIcon @click="openModal" :icon="faCog" class="cog" />
     <h1>LiveDashboard</h1>
 
     <!-- コンポーネント MyModal -->
     <SettingModal @close="closeModal" v-if="modal" />
 
-    <button @click="getChat">手動チャット取得</button>
-    <button v-if="timerRunning" @click="stopTimer">タイマーストップ</button>
-    <button v-else @click="startTimer">タイマースタート</button>
+    <span class="button" @click="getChat" title="手動チャット更新">
+      <FontAwesomeIcon :icon="faCommentAlt" />&nbsp;
+      <FontAwesomeIcon :icon="faRedoAlt" />
+    </span>
+    <span
+      class="button"
+      v-if="timerRunning"
+      @click="stopTimer"
+      title="タイマーをポーズする（実行中）"
+    >
+      <FontAwesomeIcon :icon="faStopwatch" />&nbsp;
+      <FontAwesomeIcon :icon="faPause" />&nbsp; (Running)
+    </span>
+    <span
+      class="button"
+      v-else
+      @click="startTimer"
+      title="タイマーをスタートする（停止中）"
+    >
+      <FontAwesomeIcon :icon="faStopwatch" />&nbsp;
+      <FontAwesomeIcon :icon="faPlay" />&nbsp; (Stopped)
+    </span>
 
     <div class="container">
       <div class="queue-container">
         <div class="queue-control">
-          <span>
+          <span title="キューのクリア">
             <FontAwesomeIcon
               :icon="faUsersSlash"
               class="users-slash"
               @click="clearQueue"
             />
           </span>
-          <span>
+          <span title="先頭1人呼び出し">
             <FontAwesomeIcon
               :icon="faUser"
               class="requeues"
               @click="pageAll(1)"
             />
           </span>
-          <span>
+          <span title="先頭2人呼び出し">
             <FontAwesomeIcon
               :icon="faUserFriends"
               class="requeues"
               @click="pageAll(2)"
             />
           </span>
-          <span>
+          <span title="先頭3人呼び出し">
             <FontAwesomeIcon
               :icon="faUsers"
               class="requeues"
@@ -62,12 +81,6 @@
             <Player :player="element" :index="index" />
           </template>
         </draggable>
-
-        <!-- <ul class="queuelist">
-          <template v-for="(player, index) in queue" :key="player.channelId">
-            <Player :player="player" :index="index" />
-          </template>
-        </ul> -->
       </div>
       <ul class="chatlist">
         <template v-for="chat in chatData" :key="chat.id">
@@ -91,7 +104,12 @@ import {
   faAngleDoubleDown,
   faUser,
   faUsers,
-  faUserFriends
+  faUserFriends,
+  faPlay,
+  faPause,
+  faStopwatch,
+  faCommentAlt,
+  faRedoAlt
 } from "@fortawesome/free-solid-svg-icons";
 
 import Chat from "./Chat";
@@ -119,6 +137,11 @@ export default {
       faUser,
       faUsers,
       faUserFriends,
+      faPlay,
+      faPause,
+      faStopwatch,
+      faCommentAlt,
+      faRedoAlt,
       drag: false
     };
   },
@@ -246,14 +269,16 @@ export default {
       if (this.regex) {
         const reg = this.regex;
         for (const item of obj.items) {
-          const regexp = new RegExp(reg, "g");
+          const regexp = new RegExp(reg, "ig");
           const msg = item.snippet.textMessageDetails.messageText;
           const id = item.authorDetails.channelId;
           if (regexp.test(msg)) {
             const tempQueue = this.queue;
             const match = this.getMatchQueue(id);
             if (match.length === 0) {
-              tempQueue.push(item.authorDetails);
+              const user = item.authorDetails;
+              user["playing"] = false;
+              tempQueue.push(user);
               await this.setQueue(tempQueue);
               // Send reserve chat.
               this.sendChat(
@@ -274,11 +299,34 @@ export default {
 </script>
 
 <style lang="scss">
+.dashboard {
+  height: 100%;
+}
+
+.button {
+  background-color: #ffffff;
+  display: inline-block;
+  padding: 5px 10px;
+  border: solid 2px #2c3e50;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  cursor: pointer;
+  text-align: center;
+
+  &:hover {
+    background-color: #2c3e50;
+    color: #ffffff;
+  }
+
+  & + .button {
+    margin-left: 20px;
+  }
+}
+
 .container {
   display: flex;
   justify-content: space-between;
   max-width: 960px;
-  margin: 0 auto;
+  margin: 20px auto;
 }
 
 .queue-container {
@@ -287,16 +335,25 @@ export default {
 
 .queue-control {
   display: flex;
-  justify-content: space-between;
+  justify-content: space-around;
   flex-wrap: wrap;
   width: 100%;
   margin-bottom: 20px;
 
   span {
-    background-color: rgba(46, 487, 242, 0.5);
-    border-radius: 20px;
+    background-color: #ffffff;
     display: block;
     padding: 5px;
+    width: 40px;
+    border: solid 2px #2c3e50;
+    transition: background-color 0.3s ease, color 0.3s ease;
+    cursor: pointer;
+    text-align: center;
+
+    &:hover {
+      background-color: #2c3e50;
+      color: #ffffff;
+    }
   }
 }
 
@@ -306,6 +363,11 @@ export default {
   padding: 0;
   margin: 0;
   flex: 1;
+  overflow-y: scroll;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .chatlist {
@@ -317,5 +379,7 @@ export default {
   position: fixed;
   top: 10px;
   right: 10px;
+  font-size: 25px;
+  cursor: pointer;
 }
 </style>
