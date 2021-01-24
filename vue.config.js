@@ -15,9 +15,6 @@ module.exports = {
           ],
           icon: "./src/assets/icon.png",
         },
-        publish: {
-          provider: "github",
-        },
       },
     },
   },
