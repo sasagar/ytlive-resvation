@@ -1,4 +1,5 @@
 const fs = require("fs");
+const path = require("path");
 const readline = require("readline");
 const { google } = require("googleapis");
 const OAuth2 = google.auth.OAuth2;
@@ -14,6 +15,7 @@ const TOKEN_PATH = TOKEN_DIR + "youtube.json";
 export default class Google {
   constructor() {
     this.secret_file = "";
+    this.secret_path = "";
     this.oauth = "";
     this.livelist = "";
     this.liveChatId = "";
@@ -25,6 +27,14 @@ export default class Google {
 
   set secret_file(filename) {
     this._secret_file = filename;
+  }
+
+  get secret_path() {
+    return this._secret_path;
+  }
+
+  set secret_path(filepath) {
+    this._secret_path = filepath;
   }
 
   get oauth() {
@@ -65,7 +75,12 @@ export default class Google {
   }
 
   auth() {
-    fs.readFile(this._secret_file, async (err, content) => {
+    if (!process.env.IS_TEST) {
+      this.secret_path = this._secret_file;
+    } else {
+      this.secret_path = path.join(__dirname, this._secret_file);
+    }
+    fs.readFile(this._secret_path, async (err, content) => {
       if (err) {
         console.log("Error loading client secret file: " + err);
       }
@@ -101,7 +116,12 @@ export default class Google {
 
   authStep() {
     return new Promise((res, rej) => {
-      fs.readFile(this._secret_file, async (err, content) => {
+      if (!process.env.IS_TEST) {
+        this.secret_path = this._secret_file;
+      } else {
+        this.secret_path = path.join(__dirname, this._secret_file);
+      }
+      fs.readFile(this._secret_path, async (err, content) => {
         if (err) {
           rej(err);
         }

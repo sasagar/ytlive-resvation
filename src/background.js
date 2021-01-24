@@ -9,6 +9,8 @@ import Google from "./backend-modules/google";
 
 import ElectronStore from "electron-store";
 
+import "./auto-update";
+
 const schema = {
   queue: {
     type: "array",
@@ -87,7 +89,7 @@ async function createWindow() {
     // createProtocol('app')
     // // Load the index.html when not in development
     // win.loadURL('app://./index.html')
-    win.loadURL(`http://localhost/`);
+    win.loadURL(`http://localhost:8080/`);
   }
 }
 
