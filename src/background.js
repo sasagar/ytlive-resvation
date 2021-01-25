@@ -1,7 +1,7 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, shell } from "electron";
-// import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
+import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
@@ -86,10 +86,10 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    // createProtocol('app')
+    createProtocol("app");
     // // Load the index.html when not in development
-    // win.loadURL('app://./index.html')
-    win.loadURL(`http://localhost:8080/`);
+    win.loadURL("app://./index.html");
+    // win.loadURL(`http://localhost:8080/`);
   }
 }
 
