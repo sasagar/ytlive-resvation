@@ -61,6 +61,17 @@ export default class Google {
     this._liveChatId = value;
   }
 
+  secretCheck() {
+    return new Promise((res, rej) => {
+      fs.readFile(this._secret_file, (err) => {
+        if (err) {
+          rej(false);
+        }
+        res(true);
+      });
+    });
+  }
+
   authCheck() {
     return new Promise((res, rej) => {
       fs.readFile(TOKEN_PATH, (err) => {

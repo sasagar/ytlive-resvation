@@ -168,6 +168,9 @@ export default {
       "numberOfStandby",
       "reserveKeyword"
     ]),
+    liveId() {
+      return this.status.currentLiveId;
+    },
     liveChatId() {
       return this.status.currentChatId;
     },
@@ -179,9 +182,6 @@ export default {
     },
     timerRunning() {
       return this.timers.getChatTimer.isRunning;
-    },
-    timer() {
-      return this.timerInterval;
     },
     playing() {
       return this.numberOfPlaying;

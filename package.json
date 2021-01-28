@@ -1,6 +1,6 @@
 {
   "name": "ytlive-reservation",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "description": "Reservation system for YouTube Live.",
   "author": {
@@ -26,12 +26,13 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@fortawesome/vue-fontawesome": "^3.0.0-3",
-    "core-js": "^3.8.2",
+    "core-js": "^3.8.3",
     "electron-log": "^4.3.1",
-    "electron-store": "^6.0.1",
+    "electron-store": "^7.0.0",
     "electron-updater": "^4.3.5",
-    "google-auth-library": "^6.1.4",
+    "google-auth-library": "^6.1.6",
     "googleapis": "^67.0.0",
+    "mime": "^2.5.0",
     "moment": "^2.29.1",
     "socket.io": "^3.1.0",
     "socket.io-client": "^3.1.0",
@@ -43,17 +44,17 @@
   },
   "devDependencies": {
     "@babel/preset-env": "^7.12.11",
-    "@vue/cli-plugin-babel": "~4.5.0",
-    "@vue/cli-plugin-eslint": "~4.5.0",
-    "@vue/cli-plugin-router": "~4.5.0",
-    "@vue/cli-plugin-vuex": "~4.5.0",
-    "@vue/cli-service": "~4.5.0",
-    "@vue/compiler-sfc": "^3.0.0",
+    "@vue/cli-plugin-babel": "~4.5.11",
+    "@vue/cli-plugin-eslint": "~4.5.11",
+    "@vue/cli-plugin-router": "~4.5.11",
+    "@vue/cli-plugin-vuex": "~4.5.11",
+    "@vue/cli-service": "~4.5.11",
+    "@vue/compiler-sfc": "^3.0.5",
     "babel-eslint": "^10.1.0",
-    "electron": "^9.0.0",
-    "electron-devtools-installer": "^3.1.0",
-    "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0-0",
+    "electron": "^11.2.1",
+    "electron-devtools-installer": "^3.1.1",
+    "eslint": "^7.18.0",
+    "eslint-plugin-vue": "^7.5.0",
     "node-sass": "^5.0.0",
     "sass-loader": "^10.1.1",
     "vue-cli-plugin-electron-builder": "~2.0.0-rc.5"
@@ -70,14 +71,17 @@
     "parserOptions": {
       "parser": "babel-eslint"
     },
-    "rules": {}
+    "rules": {},
+    "globals": {
+      "__static": false
+    }
   },
   "browserslist": [
     "> 1%",
     "last 2 versions",
     "chrome 86"
   ],
-  "_id": "ytlive-reservation@1.0.0",
+  "_id": "ytlive-reservation@0.1.1",
   "bugs": {
     "url": "https://github.com/sasagar/ytlive-resvation/issues"
   },
