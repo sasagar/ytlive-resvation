@@ -1,7 +1,7 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, shell } from "electron";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+// import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
@@ -10,11 +10,11 @@ const mime = require("mime");
 
 const fs = require("fs");
 
-// const readline = require("readline");
-
 import ElectronStore from "electron-store";
 
 import "./auto-update";
+
+const secret_file = "./client_secret.json";
 
 const schema = {
   queue: {
@@ -54,17 +54,16 @@ server.on("request", (req, res) => {
   if (reqpath === "/") {
     reqpath = "/index.html";
   }
-  console.log(reqpath);
-  // let stream = fs.createReadStream(path.join(__static, reqpath));
-  let stream = fs.readFileSync(path.join(__static, reqpath));
+  let stream = fs.createReadStream(path.join(__static, reqpath));
+  // let stream = fs.readFileSync(path.join(__static, reqpath));
   let ext = reqpath.substr(reqpath.lastIndexOf(".") + 1);
   res.writeHead(200, {
     "Content-Type": mime.getType(ext),
     "Access-Control-Allow-Origin": "*",
   });
-  res.end(stream);
-  // stream.pipe(stream);
-  // res.end();
+  // res.end(stream);
+  stream.pipe(stream);
+  res.end();
 });
 
 const PORT = 8081;
@@ -103,10 +102,10 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    createProtocol("app");
+    // createProtocol("app");
     // // Load the index.html when not in development
-    win.loadURL("app://./index.html");
-    // win.loadURL(`http://localhost:8080/`);
+    // win.loadURL("app://./index.html");
+    win.loadURL(`file://${__static}/index.html`);
   }
 }
 
@@ -129,8 +128,9 @@ app.on("activate", () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
-  google.secret_file = "client_secret.json";
-  if (!(await google.secretCheck())) {
+  google.secret_file = secret_file;
+  const secretChk = await google.secretCheck();
+  if (!secretChk) {
     app.quit();
   }
   const check = await google.authCheck();

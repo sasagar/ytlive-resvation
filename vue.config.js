@@ -3,7 +3,9 @@ module.exports = {
   transpileDependencies: ["vuetify"],
   pluginOptions: {
     electronBuilder: {
+      customFileProtocol: "./",
       nodeIntegration: false,
+      mainProcessWatch: ["src/backend-modules/google.js", "auto-update.js"],
       builderOptions: {
         productName: "YouTube Reservation",
         appId: "com.kent-and-co.ytlive-reservation",
@@ -18,5 +20,8 @@ module.exports = {
         },
       },
     },
+  },
+  configureWebpack: {
+    devtool: "source-map",
   },
 };
