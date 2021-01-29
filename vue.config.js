@@ -17,7 +17,6 @@ module.exports = {
             },
           ],
           icon: "./src/assets/icon.png",
-          runAfterFinish: false,
         },
       },
     },
