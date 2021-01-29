@@ -1,15 +1,20 @@
 "use strict";
 
 import { app, protocol, BrowserWindow, shell } from "electron";
-import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
+// import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
 
-// const readline = require("readline");
+const path = require("path");
+const mime = require("mime");
+
+const fs = require("fs");
 
 import ElectronStore from "electron-store";
 
 import "./auto-update";
+
+const secret_file = "./client_secret.json";
 
 const schema = {
   queue: {
@@ -33,32 +38,43 @@ const schema = {
   },
   reserveKeyword: {
     type: "string",
-    format: "regex",
   },
 };
 
 const conf = new ElectronStore({ schema });
 
-const http = require("http");
-const server = http.createServer((req, res) => {
-  res.writeHead(200, { "Content-Type": "text/html" });
-  res.end("OK");
-});
-
 const google = new Google();
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const PORT = 8081;
+const http = require("http");
 
-server.listen(PORT, () => {
-  console.log(PORT + "でサーバーが起動しました");
+const server = http.createServer();
+server.on("request", (req, res) => {
+  let reqpath = req.url;
+  if (reqpath === "/") {
+    reqpath = "/index.html";
+  }
+  let stream = fs.createReadStream(path.join(__static, reqpath));
+  // let stream = fs.readFileSync(path.join(__static, reqpath));
+  let ext = reqpath.substr(reqpath.lastIndexOf(".") + 1);
+  res.writeHead(200, {
+    "Content-Type": mime.getType(ext),
+    "Access-Control-Allow-Origin": "*",
+  });
+  // res.end(stream);
+  stream.pipe(stream);
+  res.end();
 });
+
+const PORT = 8081;
 
 const io = require("socket.io")(server, {
   cors: {
     origin: "*",
   },
 });
+
+server.listen(PORT);
 
 let win;
 
@@ -86,10 +102,10 @@ async function createWindow() {
     await win.loadURL(process.env.WEBPACK_DEV_SERVER_URL);
     if (!process.env.IS_TEST) win.webContents.openDevTools();
   } else {
-    createProtocol("app");
+    // createProtocol("app");
     // // Load the index.html when not in development
-    win.loadURL("app://./index.html");
-    // win.loadURL(`http://localhost:8080/`);
+    // win.loadURL("app://./index.html");
+    win.loadURL(`file://${__static}/index.html`);
   }
 }
 
@@ -112,31 +128,38 @@ app.on("activate", () => {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
-  google.secret_file = "client_secret.json";
-  const check = await google.authCheck();
-  if (check) {
-    google.auth();
-    // console.log(google.getChannel());
-    if (isDevelopment && !process.env.IS_TEST) {
-      // Install Vue Devtools
-      try {
-        await installExtension(VUEJS_DEVTOOLS);
-      } catch (e) {
-        console.error("Vue Devtools failed to install:", e.toString());
+  google.secret_file = secret_file;
+
+  const secretChk = await google.secretCheck();
+
+  if (secretChk) {
+    const check = await google.authCheck();
+    if (check) {
+      google.auth();
+      // console.log(google.getChannel());
+      if (isDevelopment && !process.env.IS_TEST) {
+        // Install Vue Devtools
+        try {
+          await installExtension(VUEJS_DEVTOOLS);
+        } catch (e) {
+          console.error("Vue Devtools failed to install:", e.toString());
+        }
       }
+      createWindow();
+
+      // let lives;
+      google.livelist = [];
+      // setTimeout(async () => {
+      //   lives = await google.getChannel();
+      // win.webContents.send("test", JSON.stringify(lives));
+      // }, 5000);
+    } else {
+      const url = await google.authStep();
+      shell.openExternal(url);
+
+      createWindow();
     }
-    createWindow();
-
-    let lives;
-    google.livelist = [];
-    setTimeout(async () => {
-      lives = await google.getChannel();
-      win.webContents.send("test", JSON.stringify(lives));
-    }, 5000);
   } else {
-    const url = await google.authStep();
-    shell.openExternal(url);
-
     createWindow();
   }
 });
@@ -226,6 +249,11 @@ io.on("connection", (socket) => {
   socket.on("setCode", async (data) => {
     const result = await google.authSecond(data);
     io.emit("setCodeResult", result);
+  });
+
+  socket.on("checkSecret", async () => {
+    const result = await google.secretCheck();
+    io.emit("readSecret", result);
   });
 
   socket.on("authCheck", async () => {

@@ -5,6 +5,7 @@ import {
 } from "vue-router";
 import Loading from "../views/Loading.vue";
 import Display from "../views/Display.vue";
+import Secret from "../views/Secret.vue";
 import GoogleAuth from "../views/GoogleAuth.vue";
 
 const routes = [
@@ -17,6 +18,11 @@ const routes = [
     path: "/display",
     name: "Display",
     component: Display,
+  },
+  {
+    path: "/secret",
+    name: "Secret",
+    component: Secret,
   },
   {
     path: "/googleauth",
