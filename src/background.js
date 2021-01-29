@@ -129,34 +129,37 @@ app.on("activate", () => {
 // Some APIs can only be used after this event occurs.
 app.on("ready", async () => {
   google.secret_file = secret_file;
+
   const secretChk = await google.secretCheck();
-  if (!secretChk) {
-    app.quit();
-  }
-  const check = await google.authCheck();
-  if (check) {
-    google.auth();
-    // console.log(google.getChannel());
-    if (isDevelopment && !process.env.IS_TEST) {
-      // Install Vue Devtools
-      try {
-        await installExtension(VUEJS_DEVTOOLS);
-      } catch (e) {
-        console.error("Vue Devtools failed to install:", e.toString());
+
+  if (secretChk) {
+    const check = await google.authCheck();
+    if (check) {
+      google.auth();
+      // console.log(google.getChannel());
+      if (isDevelopment && !process.env.IS_TEST) {
+        // Install Vue Devtools
+        try {
+          await installExtension(VUEJS_DEVTOOLS);
+        } catch (e) {
+          console.error("Vue Devtools failed to install:", e.toString());
+        }
       }
+      createWindow();
+
+      // let lives;
+      google.livelist = [];
+      // setTimeout(async () => {
+      //   lives = await google.getChannel();
+      // win.webContents.send("test", JSON.stringify(lives));
+      // }, 5000);
+    } else {
+      const url = await google.authStep();
+      shell.openExternal(url);
+
+      createWindow();
     }
-    createWindow();
-
-    let lives;
-    google.livelist = [];
-    setTimeout(async () => {
-      lives = await google.getChannel();
-      win.webContents.send("test", JSON.stringify(lives));
-    }, 5000);
   } else {
-    const url = await google.authStep();
-    shell.openExternal(url);
-
     createWindow();
   }
 });
@@ -246,6 +249,11 @@ io.on("connection", (socket) => {
   socket.on("setCode", async (data) => {
     const result = await google.authSecond(data);
     io.emit("setCodeResult", result);
+  });
+
+  socket.on("checkSecret", async () => {
+    const result = await google.secretCheck();
+    io.emit("readSecret", result);
   });
 
   socket.on("authCheck", async () => {

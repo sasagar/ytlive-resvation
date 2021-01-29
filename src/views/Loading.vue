@@ -39,7 +39,7 @@ export default {
   },
   async mounted() {
     console.log("App/mounted");
-    socket.emit("authCheck");
+    socket.emit("checkSecret");
 
     socket.on("authCheckResult", res => {
       if (res) {
@@ -47,6 +47,14 @@ export default {
         socket.emit("liveListRequest");
       } else {
         this.changeView({ viewName: "GoogleAuth" });
+      }
+    });
+
+    socket.on("readSecret", async res => {
+      if (res) {
+        socket.emit("authCheck");
+      } else {
+        this.changeView({ viewName: "Secret" });
       }
     });
 

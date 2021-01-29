@@ -69,7 +69,7 @@ export default class Google {
         }
         res(true);
       });
-    });
+    }).catch((e) => console.log(e));
   }
 
   authCheck() {
