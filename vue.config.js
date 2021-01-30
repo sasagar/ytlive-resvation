@@ -16,6 +16,7 @@ module.exports = {
               arch: ["x64", "ia32"],
             },
           ],
+          publish: ["github"],
           icon: "./src/assets/icon.png",
         },
       },
