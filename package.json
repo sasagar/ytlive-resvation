@@ -1,6 +1,6 @@
 {
   "name": "ytlive-reservation",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "private": true,
   "description": "Reservation system for YouTube Live.",
   "author": {
@@ -10,7 +10,7 @@
     "serve": "vue-cli-service serve --modern",
     "build": "vue-cli-service build --modern",
     "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build --publish never",
+    "electron:build": "vue-cli-service electron:build",
     "electron:debug": "vue-cli-service electron:serve --debug",
     "electron:serve": "vue-cli-service electron:serve --modern",
     "postinstall": "electron-builder install-app-deps",
@@ -82,7 +82,7 @@
     "last 2 versions",
     "chrome 86"
   ],
-  "_id": "ytlive-reservation@0.2.2",
+  "_id": "ytlive-reservation@0.2.3",
   "bugs": {
     "url": "https://github.com/sasagar/ytlive-resvation/issues"
   },
