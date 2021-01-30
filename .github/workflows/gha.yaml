@@ -37,6 +37,8 @@ jobs:
   # Windows 用の job 定義
   build_on_win:
     runs-on: windows-latest
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js 15.x
