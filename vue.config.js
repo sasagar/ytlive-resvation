@@ -17,6 +17,8 @@ module.exports = {
             },
           ],
           publish: ["github"],
+          releaseType: "release",
+          vPrefixedTagName: true,
           icon: "./src/assets/icon.png",
         },
       },
