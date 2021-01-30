@@ -40,7 +40,8 @@
     "vue-router": "^4.0.0-0",
     "vue-timers": "^2.0.4",
     "vuedraggable": "^4.0.1",
-    "vuex": "^4.0.0-0"
+    "vuex": "^4.0.0-0",
+    "youtube-chat": "^1.1.0"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.12.11",

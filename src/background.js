@@ -56,16 +56,16 @@ server.on("request", (req, res) => {
   if (reqpath === "/") {
     reqpath = "/index.html";
   }
-  let stream = fs.createReadStream(path.join(__static, reqpath));
-  // let stream = fs.readFileSync(path.join(__static, reqpath));
+  // let stream = fs.createReadStream(path.join(__static, reqpath));
+  let stream = fs.readFileSync(path.join(__static, reqpath));
   let ext = reqpath.substr(reqpath.lastIndexOf(".") + 1);
   res.writeHead(200, {
     "Content-Type": mime.getType(ext),
     "Access-Control-Allow-Origin": "*",
   });
-  // res.end(stream);
-  stream.pipe(stream);
-  res.end();
+  res.end(stream);
+  // stream.pipe(stream);
+  // res.end();
 });
 
 const PORT = 8081;
@@ -189,6 +189,9 @@ if (isDevelopment) {
   }
 }
 
+// import { LiveChat } from "youtube-chat";
+// let LC;
+
 io.on("connection", (socket) => {
   socket.on("liveListRequest", async () => {
     const lives = await google.getChannel();
@@ -275,6 +278,31 @@ io.on("connection", (socket) => {
     const result = await firstDisplayData();
     io.emit("firstDisplayResponse", result);
   });
+
+  //   socket.on("startGetChat", (liveId) => {
+  //     LC = new LiveChat({ liveId });
+  //     LC.start();
+  //   });
+
+  //   socket.on("endGetChat", () => {
+  //     LC.stop();
+  //   });
+  // });
+
+  // LC.on("start", (liveId) => {
+  //   console.log("start: " + liveId);
+  // });
+
+  // LC.on("comment", (comment) => {
+  //   console.log(comment);
+  // });
+
+  // LC.on("end", (reason) => {
+  //   console.log("end: " + reason);
+  // });
+
+  // LC.on("error", (err) => {
+  //   console.error(err);
 });
 
 const firstDisplayData = async () => {
