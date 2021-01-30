@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, shell } from "electron";
+import { app, protocol, BrowserWindow, shell, screen } from "electron";
 // import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
@@ -15,6 +15,8 @@ import ElectronStore from "electron-store";
 import "./auto-update";
 
 const secret_file = "./client_secret.json";
+
+const DEFAULT_WINDOW_SIZE = [800, 600];
 
 const schema = {
   queue: {
@@ -84,10 +86,13 @@ protocol.registerSchemesAsPrivileged([
 ]);
 
 async function createWindow() {
+  const pos = conf.get("window.pos") || getCenterPosition();
+
   // Create the browser window.
   win = new BrowserWindow({
     width: 800,
     height: 600,
+    pos,
     webPreferences: {
       // Use pluginOptions.nodeIntegration, leave this alone
       // See nklayman.github.io/vue-cli-plugin-electron-builder/guide/security.html#node-integration for more info
@@ -107,6 +112,11 @@ async function createWindow() {
     // win.loadURL("app://./index.html");
     win.loadURL(`file://${__static}/index.html`);
   }
+
+  win.on("close", () => {
+    conf.set("window.pos", win.getPosition()); // ウィンドウの座標を記録
+    conf.set("window.size", win.getSize()); // ウィンドウのサイズを記録
+  });
 }
 
 // Quit when all windows are closed.
@@ -273,3 +283,15 @@ const firstDisplayData = async () => {
   const nos = await conf.get("numberOfStandby", 2);
   return { queue, numberOfPlaying: nop, numberOfStandby: nos };
 };
+
+/**
+ * ウィンドウの中央の座標を返却
+ *
+ * @return {array}
+ */
+function getCenterPosition() {
+  const { width, height } = screen.getPrimaryDisplay().workAreaSize;
+  const x = Math.floor((width - DEFAULT_WINDOW_SIZE[0]) / 2);
+  const y = Math.floor((height - DEFAULT_WINDOW_SIZE[1]) / 2);
+  return [x, y];
+}
