@@ -1,6 +1,6 @@
 {
   "name": "ytlive-reservation",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "private": true,
   "description": "Reservation system for YouTube Live.",
   "author": {
@@ -81,7 +81,7 @@
     "last 2 versions",
     "chrome 86"
   ],
-  "_id": "ytlive-reservation@0.2.0",
+  "_id": "ytlive-reservation@0.2.1",
   "bugs": {
     "url": "https://github.com/sasagar/ytlive-resvation/issues"
   },
