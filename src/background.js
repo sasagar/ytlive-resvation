@@ -215,15 +215,18 @@ io.on("connection", (socket) => {
   });
 
   socket.on("saveTimerInterval", (data) => {
-    conf.set("timerInterval", data);
+    const interval = data * 1;
+    conf.set("timerInterval", interval);
   });
 
   socket.on("saveNumberOfPlaying", (data) => {
     conf.set("numberOfPlaying", data);
+    io.emit("getNumberOfPlayingResponseOnce", data);
   });
 
   socket.on("saveNumberOfStandby", (data) => {
     conf.set("numberOfStandby", data);
+    io.emit("getNumberOfStandbyResponseOnce", data);
   });
 
   socket.on("saveReserveKeyword", (data) => {

@@ -8,14 +8,7 @@
             <tbody>
               <tr>
                 <th>タイマー間隔<br /><span>(最小: 5000msec)</span></th>
-                <td>
-                  <input
-                    type="number"
-                    min="5000"
-                    v-model="timer"
-                    step="100"
-                  />msec
-                </td>
+                <td><input type="number" v-model="timer" />msec</td>
               </tr>
               <tr>
                 <th>プレイ中人数</th>
