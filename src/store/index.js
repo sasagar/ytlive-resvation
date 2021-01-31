@@ -113,6 +113,7 @@ export default createStore({
         timer = payload;
       }
       context.commit("setTimerInterval", timer);
+      socket.emit("saveTimerInterval", timer);
     },
     setNumberOfPlaying(context, payload) {
       console.log("store/actions/setNumberOfPlaying");
@@ -121,6 +122,7 @@ export default createStore({
         count = payload;
       }
       context.commit("setNumberOfPlaying", count);
+      socket.emit("saveNumberOfPlaying", count);
     },
     setNumberOfStandby(context, payload) {
       console.log("store/actions/setNumberOfStandby");
@@ -129,10 +131,12 @@ export default createStore({
         count = payload;
       }
       context.commit("setNumberOfStandby", count);
+      socket.emit("saveNumberOfStandby", count);
     },
     setReserveKeyword(context, payload) {
       console.log("store/actions/setReserveKeyword");
       context.commit("setReserveKeyword", payload);
+      socket.emit("saveReserveKeyword", payload);
     },
   },
   getters: {

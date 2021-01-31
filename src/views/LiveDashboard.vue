@@ -234,10 +234,6 @@ export default {
       this.modal = true;
     },
     closeModal() {
-      socket.emit("saveTimerInterval", this.timer);
-      socket.emit("saveNumberOfPlaying", this.playing);
-      socket.emit("saveNumberOfStandby", this.standby);
-      socket.emit("saveReserveKeyword", this.regex);
       this.modal = false;
     },
     clearQueue() {
