@@ -48,11 +48,11 @@ export default {
     socket.on("getQueueResponseOnce", data => {
       this.queue = data;
     });
-    socket.on("getNumberOfPlayingRequest", data => {
-      this.queue = data;
+    socket.on("getNumberOfPlayingResponseOnce", data => {
+      this.numberOfPlaying = data;
     });
-    socket.on("getNumberOfStandbyResponse", data => {
-      this.queue = data;
+    socket.on("getNumberOfStandbyResponseOnce", data => {
+      this.numberOfStandby = data;
     });
   }
 };
