@@ -197,7 +197,14 @@ export default {
         return this.status.queue;
       },
       set(val) {
-        this.setQueue(val);
+        let res = [];
+        val.forEach((player, index) => {
+          if (index >= this.playing) {
+            player.playing = "standby";
+          }
+          res.push(player);
+        });
+        this.setQueue(res);
       }
     },
     queueCount() {
