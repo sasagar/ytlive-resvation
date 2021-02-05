@@ -153,7 +153,7 @@ export default {
   ],
   timers: {
     getChatTimer: {
-      time: 8000,
+      time: this.timerIntvl,
       autostart: false,
       repeat: true,
       immediate: true
@@ -168,6 +168,9 @@ export default {
       "numberOfStandby",
       "reserveKeyword"
     ]),
+    timerIntvl() {
+      return this.timerInterval;
+    },
     liveId() {
       return this.status.currentLiveId;
     },
@@ -200,7 +203,7 @@ export default {
         let res = [];
         val.forEach((player, index) => {
           if (index >= this.playing) {
-            player.playing = "standby";
+            player.playing = false;
           }
           res.push(player);
         });
