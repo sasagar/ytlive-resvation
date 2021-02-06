@@ -9,11 +9,12 @@ const SCOPES = [
   "https://www.googleapis.com/auth/youtube.readonly",
   "https://www.googleapis.com/auth/youtube",
 ];
-const TOKEN_DIR = ".credentials/";
-const TOKEN_PATH = TOKEN_DIR + "youtube.json";
+const TOKEN_DIR = ".credentials";
+const TOKEN_PATH = path.join(TOKEN_DIR, "youtube.json");
 
 export default class Google {
-  constructor() {
+  constructor(userDir) {
+    this.userDir = userDir;
     this.secret_file = "";
     this.secret_path = "";
     this.oauth = "";
@@ -74,7 +75,7 @@ export default class Google {
 
   authCheck() {
     return new Promise((res, rej) => {
-      fs.readFile(TOKEN_PATH, (err) => {
+      fs.readFile(path.join(this.userDir, TOKEN_PATH), (err) => {
         if (err) {
           res(false);
         } else {
@@ -114,7 +115,7 @@ export default class Google {
     const oauth2Client = new OAuth2(clientId, clientSecret, redirectUrl);
 
     // Check if we have previously stored a token.
-    fs.readFile(TOKEN_PATH, (err, token) => {
+    fs.readFile(path.join(this.userDir, TOKEN_PATH), (err, token) => {
       if (err) {
         this.getNewToken(oauth2Client, callback);
       } else {
@@ -216,16 +217,20 @@ export default class Google {
    */
   storeToken(token) {
     try {
-      fs.mkdirSync(TOKEN_DIR);
+      fs.mkdirSync(path.join(this.userDir, TOKEN_DIR));
     } catch (err) {
       if (err.code != "EEXIST") {
         throw err;
       }
     }
-    fs.writeFile(TOKEN_PATH, JSON.stringify(token), (err) => {
-      if (err) throw err;
-      console.log("Token stored to " + TOKEN_PATH);
-    });
+    fs.writeFile(
+      path.join(this.userDir, TOKEN_PATH),
+      JSON.stringify(token),
+      (err) => {
+        if (err) throw err;
+        console.log("Token stored to " + path.join(this.userDir, TOKEN_PATH));
+      }
+    );
   }
 
   /**

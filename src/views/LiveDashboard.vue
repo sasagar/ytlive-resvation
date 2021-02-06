@@ -153,7 +153,7 @@ export default {
   ],
   timers: {
     getChatTimer: {
-      time: this.timerIntvl,
+      time: 8000,
       autostart: false,
       repeat: true,
       immediate: true
@@ -168,8 +168,18 @@ export default {
       "numberOfStandby",
       "reserveKeyword"
     ]),
-    timerIntvl() {
-      return this.timerInterval;
+    timerIntvl: {
+      get() {
+        return this.timerInterval;
+      },
+      set(val) {
+        let time = 5000;
+        if (val >= 5000) {
+          time = val;
+        }
+        this.setTimerInterval(time);
+        this.timers.log.time = time;
+      }
     },
     liveId() {
       return this.status.currentLiveId;
@@ -200,14 +210,7 @@ export default {
         return this.status.queue;
       },
       set(val) {
-        let res = [];
-        val.forEach((player, index) => {
-          if (index >= this.playing) {
-            player.playing = false;
-          }
-          res.push(player);
-        });
-        this.setQueue(res);
+        this.setQueueSort(val);
       }
     },
     queueCount() {
@@ -223,7 +226,13 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["setNextPageToken", "setChatData", "setQueue"]),
+    ...mapActions([
+      "setNextPageToken",
+      "setChatData",
+      "setQueue",
+      "setQueueSort",
+      "setTimerInterval"
+    ]),
     sort() {
       this.list = this.list.sort((a, b) => a.order - b.order);
     },
@@ -300,6 +309,17 @@ export default {
         }
       }
     });
+  },
+  watch: {
+    timerInterval: function(newVal, oldVal) {
+      let time = 5000;
+      if (newVal >= 5000) {
+        time = newVal;
+      } else {
+        time = oldVal;
+      }
+      this.timerIntvl = time;
+    }
   }
 };
 </script>
@@ -363,8 +383,7 @@ export default {
   }
 }
 
-.queuelist,
-.chatlist {
+.queuelist {
   list-style-type: none;
   padding: 0;
   margin: 0;
@@ -377,6 +396,11 @@ export default {
 }
 
 .chatlist {
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  flex: 1;
+  overflow-y: scroll;
   margin-left: 30px;
 }
 

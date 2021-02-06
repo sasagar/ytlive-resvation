@@ -31,7 +31,8 @@ export default {
   methods: {
     ...mapActions(["changeView", "setCurrentLive", "setCurrentChat"]),
     async setCurrent(liveId, liveChatId) {
-      console.log("components/Live/setCurrent: " + liveId);
+      console.log("components/Live/setCurrent: Live = " + liveId);
+      console.log("components/Live/setCurrent: Chat = " + liveChatId);
       await this.setCurrentLive(liveId);
       await this.setCurrentChat(liveChatId);
       this.changeView({ viewName: "LiveDashboard", id: liveChatId });

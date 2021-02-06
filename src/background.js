@@ -1,6 +1,6 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, shell, screen } from "electron";
+import { app, protocol, BrowserWindow, shell, screen, dialog } from "electron";
 // import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
@@ -14,7 +14,9 @@ import ElectronStore from "electron-store";
 
 import "./auto-update";
 
-const secret_file = "./client_secret.json";
+const userDir = app.getPath("userData");
+
+const secret_file = path.join(userDir, "./client_secret.json");
 
 const DEFAULT_WINDOW_SIZE = [800, 600];
 
@@ -45,7 +47,7 @@ const schema = {
 
 const conf = new ElectronStore({ schema });
 
-const google = new Google();
+const google = new Google(userDir);
 const isDevelopment = process.env.NODE_ENV !== "production";
 
 const http = require("http");
@@ -164,15 +166,18 @@ app.on("ready", async () => {
       // win.webContents.send("test", JSON.stringify(lives));
       // }, 5000);
     } else {
-      const url = await google.authStep();
-      shell.openExternal(url);
-
+      authOpen();
       createWindow();
     }
   } else {
     createWindow();
   }
 });
+
+const authOpen = async () => {
+  const url = await google.authStep();
+  shell.openExternal(url);
+};
 
 // Exit cleanly on request from parent process in development mode.
 if (isDevelopment) {
@@ -281,6 +286,28 @@ io.on("connection", (socket) => {
   socket.on("firstDisplayRequest", async () => {
     const result = await firstDisplayData();
     io.emit("firstDisplayResponse", result);
+  });
+
+  socket.on("openSecretSelect", () => {
+    dialog
+      .showOpenDialog(win, {
+        title: "Select client_secret.json",
+        filters: [{ name: "JSON", extentions: ["json"] }],
+        properties: ["openFile"],
+      })
+      .then((result) => {
+        if (result.canceled) {
+          io.emit("cancelFileRead");
+        } else {
+          const secret = fs.readFileSync(result.filePaths[0]);
+          fs.writeFileSync(secret_file, secret);
+          authOpen();
+          io.emit("completeSecretSave");
+        }
+      })
+      .catch((err) => {
+        io.emit("errorSecret", err);
+      });
   });
 
   //   socket.on("startGetChat", (liveId) => {

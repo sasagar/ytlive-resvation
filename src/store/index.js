@@ -71,6 +71,7 @@ export default createStore({
   actions: {
     changeView(context, payload) {
       console.log("store/actions/changeView");
+      console.log(payload);
       context.commit("changeView", payload);
       const viewName = payload.viewName;
       const id = payload.id;
@@ -105,6 +106,18 @@ export default createStore({
       console.log("store/actions/setQueue");
       context.commit("setQueue", payload);
       socket.emit("saveQueue", payload);
+    },
+    setQueueSort(context, payload) {
+      console.log("store/actions/setQueueSort");
+      let res = [];
+      payload.forEach((player, index) => {
+        if (index >= this.playing) {
+          player.playing = false;
+        }
+        res.push(player);
+      });
+      context.commit("setQueue", res);
+      socket.emit("saveQueue", res);
     },
     setTimerInterval(context, payload) {
       console.log("store/actions/setTimerInterval");

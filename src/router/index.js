@@ -10,11 +10,6 @@ import GoogleAuth from "../views/GoogleAuth.vue";
 
 const routes = [
   {
-    path: "/",
-    name: "Loading",
-    component: Loading,
-  },
-  {
     path: "/display",
     name: "Display",
     component: Display,
@@ -46,6 +41,11 @@ const routes = [
     // which is lazy-loaded when the route is visited.
     component: () =>
       import(/* webpackChunkName: "about" */ "../views/LiveDashboard.vue"),
+  },
+  {
+    path: "/",
+    name: "Loading",
+    component: Loading,
   },
 ];
 

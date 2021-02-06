@@ -6,21 +6,22 @@
         @click="this.fixed = !this.fixed"
         aria-hidden="true"
       ></i>
-      <span class="user-handle">
+      <span class="user-handle" title="並び替え">
         <FontAwesomeIcon :icon="faAlignJustify" />
       </span>
-      <span class="user-page" @click="pageUser(player, index)">
+      <span class="user-page" @click="pageUser(player, index)" title="単独呼出">
         <FontAwesomeIcon :icon="faVolumeUp" />
       </span>
-      <span class="user-mute" @click="muteUser(index)" :class="paged(index)">
+      <span
+        class="user-mute"
+        @click="muteUser(index)"
+        :class="paged(index)"
+        title="呼出解除"
+      >
         <FontAwesomeIcon :icon="faVolumeMute" />
       </span>
-      <span class="remove">
-        <FontAwesomeIcon
-          @click="delUser(player)"
-          :icon="faUserMinus"
-          class="user-del"
-        />
+      <span class="remove" @click="delUser(player)" title="予約取消">
+        <FontAwesomeIcon :icon="faUserMinus" class="user-del" />
       </span>
       <span class="index">{{ index + 1 }}</span>
       <img :src="player.profileImageUrl" />
