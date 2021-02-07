@@ -44,6 +44,10 @@ const schema = {
     type: "string",
     default: "",
   },
+  cancelKeyword: {
+    type: "string",
+    default: "",
+  },
 };
 
 const conf = new ElectronStore({ schema });
@@ -242,6 +246,10 @@ io.on("connection", (socket) => {
     conf.set("reserveKeyword", data);
   });
 
+  socket.on("saveCancelKeyword", (data) => {
+    conf.set("cancelKeyword", data);
+  });
+
   socket.on("getQueueRequest", async () => {
     const data = await conf.get("queue", []);
     io.emit("getQueueResponse", data);
@@ -265,6 +273,11 @@ io.on("connection", (socket) => {
   socket.on("getReserveKeywordRequest", async () => {
     const data = await conf.get("reserveKeyword");
     io.emit("getReserveKeywordResponse", data);
+  });
+
+  socket.on("getCancelKeywordRequest", async () => {
+    const data = await conf.get("cancelKeyword");
+    io.emit("getCancelKeywordResponse", data);
   });
 
   socket.on("sendReserveMessage", (data) => {

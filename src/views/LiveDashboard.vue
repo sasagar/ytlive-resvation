@@ -160,13 +160,14 @@ export default {
     }
   },
   computed: {
-    ...mapGetters(["getMatchQueue"]),
+    ...mapGetters(["getMatchQueue", "getMatchQueueIndex"]),
     ...mapState([
       "status",
       "timerInterval",
       "numberOfPlaying",
       "numberOfStandby",
-      "reserveKeyword"
+      "reserveKeyword",
+      "cancelKeyword"
     ]),
     timerIntvl: {
       get() {
@@ -204,6 +205,9 @@ export default {
     },
     regex() {
       return this.reserveKeyword;
+    },
+    cRegex() {
+      return this.cancelKeyword;
     },
     queue: {
       get() {
@@ -308,6 +312,27 @@ export default {
           }
         }
       }
+      if (this.cRegex) {
+        const reg = this.cRegex;
+        for (const item of obj.items) {
+          const regexp = new RegExp(reg, "ig");
+          const msg = item.snippet.textMessageDetails.messageText;
+          const id = item.authorDetails.channelId;
+          if (regexp.test(msg)) {
+            const tempQueue = this.queue;
+            const match = this.getMatchQueueIndex(id);
+            if (match >= 0) {
+              tempQueue.splice(match, 1);
+              await this.setQueue(tempQueue);
+              // Send reserve chat.
+              this.sendChat(
+                item.authorDetails.displayName +
+                  "さんの予約、取り消しましたー！"
+              );
+            }
+          }
+        }
+      }
     });
   },
   watch: {
@@ -402,6 +427,7 @@ export default {
   flex: 1;
   overflow-y: scroll;
   margin-left: 30px;
+  height: calc(100vh - 150px);
 }
 
 .cog {

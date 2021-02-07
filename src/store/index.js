@@ -11,6 +11,7 @@ export default createStore({
     numberOfPlaying: 3,
     numberOfStandby: 2,
     reserveKeyword: "",
+    cancelKeyword: "",
     status: {
       msg: "Waiting for Live data.",
       lives: {},
@@ -67,11 +68,14 @@ export default createStore({
       console.log("store/mutations/setReserveKeyword");
       state.reserveKeyword = payload;
     },
+    setCancelKeyword(state, payload) {
+      console.log("store/mutations/setCancelKeyword");
+      state.cancelKeyword = payload;
+    },
   },
   actions: {
     changeView(context, payload) {
       console.log("store/actions/changeView");
-      console.log(payload);
       context.commit("changeView", payload);
       const viewName = payload.viewName;
       const id = payload.id;
@@ -151,10 +155,21 @@ export default createStore({
       context.commit("setReserveKeyword", payload);
       socket.emit("saveReserveKeyword", payload);
     },
+    setCancelKeyword(context, payload) {
+      console.log("store/actions/setCancelKeyword");
+      context.commit("setCancelKeyword", payload);
+      socket.emit("saveCancelKeyword", payload);
+    },
   },
   getters: {
     getMatchQueue: (state) => (id) => {
       return state.status.queue.filter((queued) => queued.channelId === id);
+    },
+    getMatchQueueIndex: (state) => (id) => {
+      const res = state.status.queue.findIndex(
+        (queued) => queued.channelId === id
+      );
+      return res;
     },
   },
   modules: {},

@@ -27,6 +27,15 @@
                 </th>
                 <td><textarea v-model="regex"></textarea></td>
               </tr>
+              <tr>
+                <th>
+                  自動予約取消キーワード<br />
+                  <span
+                    >(正規表現・空欄だと機能停止・大文字小文字の区別無し)</span
+                  >
+                </th>
+                <td><textarea v-model="cRegex"></textarea></td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -50,7 +59,8 @@ export default {
       "setTimerInterval",
       "setNumberOfPlaying",
       "setNumberOfStandby",
-      "setReserveKeyword"
+      "setReserveKeyword",
+      "setCancelKeyword"
     ])
   },
   computed: {
@@ -58,7 +68,8 @@ export default {
       "timerInterval",
       "numberOfPlaying",
       "numberOfStandby",
-      "reserveKeyword"
+      "reserveKeyword",
+      "cancelKeyword"
     ]),
     timer: {
       get() {
@@ -90,6 +101,14 @@ export default {
       },
       set(val) {
         this.setReserveKeyword(val);
+      }
+    },
+    cRegex: {
+      get() {
+        return this.cancelKeyword;
+      },
+      set(val) {
+        this.setCancelKeyword(val);
       }
     }
   }

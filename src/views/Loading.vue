@@ -34,7 +34,8 @@ export default {
       "setTimerInterval",
       "setNumberOfPlaying",
       "setNumberOfStandby",
-      "setReserveKeyword"
+      "setReserveKeyword",
+      "setCancelKeyword"
     ])
   },
   async mounted() {
@@ -74,6 +75,7 @@ export default {
       socket.emit("getNumberOfPlayingRequest");
       socket.emit("getNumberOfStandbyRequest");
       socket.emit("getReserveKeywordRequest");
+      socket.emit("getCancelKeywordRequest");
       // Recieve conf from Electron.
       socket.on("getQueueResponse", async data => {
         await this.setQueue(data);
@@ -89,6 +91,9 @@ export default {
       });
       socket.on("getReserveKeywordResponse", async data => {
         await this.setReserveKeyword(data);
+      });
+      socket.on("getCancelKeywordResponse", async data => {
+        await this.setCancelKeyword(data);
       });
     });
   }
