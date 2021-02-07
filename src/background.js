@@ -42,6 +42,7 @@ const schema = {
   },
   reserveKeyword: {
     type: "string",
+    default: "",
   },
 };
 
