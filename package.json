@@ -89,7 +89,7 @@
   },
   "homepage": "https://github.com/sasagar/ytlive-resvation#readme",
   "license": "GPL-2.0",
-  "readme": "ERROR: No README data found!",
+  "readme": "README.md",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/sasagar/ytlive-resvation.git"
