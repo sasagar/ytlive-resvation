@@ -179,7 +179,7 @@ export default {
           time = val;
         }
         this.setTimerInterval(time);
-        this.timers.log.time = time;
+        this.timers.getChatTimer.time = time;
       }
     },
     liveId() {
