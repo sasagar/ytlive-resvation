@@ -206,7 +206,9 @@ if (isDevelopment) {
 
 io.on("connection", (socket) => {
   socket.on("liveListRequest", async () => {
-    const lives = await google.getChannel();
+    const activeLives = await google.getChannel(google.oauth, "active");
+    const upcomingLives = await google.getChannel(google.oauth, "upcoming");
+    const lives = activeLives.concat(upcomingLives);
     io.emit("liveListResponse", lives);
   });
 

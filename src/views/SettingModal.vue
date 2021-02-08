@@ -76,7 +76,7 @@ export default {
         return this.timerInterval;
       },
       set(val) {
-        this.setTimerInterval(val);
+        this.setTimerInterval(val * 1);
       }
     },
     playing: {

@@ -238,7 +238,7 @@ export default class Google {
    *
    * @param {google.auth.OAuth2} auth An authorized OAuth2 client.
    */
-  getChannel(auth = this._oauth) {
+  getChannel(auth = this._oauth, status = "upcoming") {
     var service = google.youtube("v3");
 
     return new Promise((res, rej) => {
@@ -246,7 +246,7 @@ export default class Google {
         {
           auth: auth,
           part: "id,snippet,contentDetails,status",
-          broadcastStatus: ["active", "upcoming"],
+          broadcastStatus: status,
           mime: true,
         },
         (err, response) => {
@@ -265,13 +265,14 @@ export default class Google {
       .then((items) => {
         if (items.length == 0) {
           console.log("No live found.");
+          return [];
         } else {
           return items;
         }
       })
-      .catch(() => {
-        return null;
-        // console.error(e);
+      .catch((e) => {
+        console.error(e);
+        return [];
       });
   }
 
