@@ -1,9 +1,18 @@
 "use strict";
 
-import { app, protocol, BrowserWindow, shell, screen, dialog } from "electron";
+import {
+  app,
+  protocol,
+  BrowserWindow,
+  Menu,
+  shell,
+  screen,
+  dialog,
+} from "electron";
 // import { createProtocol } from "vue-cli-plugin-electron-builder/lib";
 import installExtension, { VUEJS_DEVTOOLS } from "electron-devtools-installer";
 import Google from "./backend-modules/google";
+import { template, darwinTemplate } from "./backend-modules/electronMenu";
 
 const path = require("path");
 const mime = require("mime");
@@ -126,6 +135,22 @@ async function createWindow() {
     conf.set("window.pos", win.getPosition()); // ウィンドウの座標を記録
     conf.set("window.size", win.getSize()); // ウィンドウのサイズを記録
   });
+
+  if (process.platform === "darwin") {
+    template.unshift(darwinTemplate.main);
+
+    // Edit menu
+    template[1].submenu = template[1].submenu.concat(
+      template[1].submenu,
+      darwinTemplate.sub1
+    );
+
+    // Window menu
+    template[3].submenu = darwinTemplate.sub2;
+  }
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
 }
 
 // Quit when all windows are closed.
@@ -155,7 +180,6 @@ app.on("ready", async () => {
     const check = await google.authCheck();
     if (check) {
       google.auth();
-      // console.log(google.getChannel());
       if (isDevelopment && !process.env.IS_TEST) {
         // Install Vue Devtools
         try {
@@ -166,12 +190,7 @@ app.on("ready", async () => {
       }
       createWindow();
 
-      // let lives;
       google.livelist = [];
-      // setTimeout(async () => {
-      //   lives = await google.getChannel();
-      // win.webContents.send("test", JSON.stringify(lives));
-      // }, 5000);
     } else {
       authOpen();
       createWindow();
@@ -200,9 +219,6 @@ if (isDevelopment) {
     });
   }
 }
-
-// import { LiveChat } from "youtube-chat";
-// let LC;
 
 io.on("connection", (socket) => {
   socket.on("liveListRequest", async () => {
@@ -327,31 +343,6 @@ io.on("connection", (socket) => {
         io.emit("errorSecret", err);
       });
   });
-
-  //   socket.on("startGetChat", (liveId) => {
-  //     LC = new LiveChat({ liveId });
-  //     LC.start();
-  //   });
-
-  //   socket.on("endGetChat", () => {
-  //     LC.stop();
-  //   });
-  // });
-
-  // LC.on("start", (liveId) => {
-  //   console.log("start: " + liveId);
-  // });
-
-  // LC.on("comment", (comment) => {
-  //   console.log(comment);
-  // });
-
-  // LC.on("end", (reason) => {
-  //   console.log("end: " + reason);
-  // });
-
-  // LC.on("error", (err) => {
-  //   console.error(err);
 });
 
 const firstDisplayData = async () => {
