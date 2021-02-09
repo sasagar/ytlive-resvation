@@ -5,7 +5,11 @@ module.exports = {
     electronBuilder: {
       customFileProtocol: "./",
       nodeIntegration: false,
-      mainProcessWatch: ["src/backend-modules/google.js", "auto-update.js"],
+      mainProcessWatch: [
+        "src/backend-modules/google.js",
+        "src/backend-modules/electronMenu.js",
+        "auto-update.js",
+      ],
       builderOptions: {
         productName: "YouTube Reservation",
         appId: "com.kent-and-co.ytlive-reservation",

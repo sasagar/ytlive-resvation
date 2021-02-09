@@ -27,6 +27,7 @@
     "@fortawesome/free-regular-svg-icons": "^5.15.2",
     "@fortawesome/free-solid-svg-icons": "^5.15.2",
     "@fortawesome/vue-fontawesome": "^3.0.0-3",
+    "about-window": "^1.13.4",
     "core-js": "^3.8.3",
     "electron-log": "^4.3.1",
     "electron-store": "^7.0.0",

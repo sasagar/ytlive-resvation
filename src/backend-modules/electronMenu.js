@@ -1,4 +1,14 @@
 import { shell } from "electron";
+import openAboutWindow from "about-window";
+import { join } from "path";
+// import fs from "fs";
+
+import appEnv from "../../package.json";
+
+// const PACKAGE_JSON = process.env.IS_TEST
+//   ? join(__dirname, "../package.json")
+//   : join(__dirname, "package.json");
+// const packageConfig = JSON.parse(fs.readFileSync(PACKAGE_JSON, "utf8"));
 
 export const template = [
   {
@@ -39,8 +49,22 @@ export const template = [
     label: "ヘルプ",
     submenu: [
       {
-        role: "about",
+        // role: "about",
         label: "このアプリについて",
+        click() {
+          openAboutWindow({
+            icon_path: join(__static, "icon.png"),
+            about_page_dir: __static,
+            product_name: appEnv.productName,
+            license: appEnv.license,
+            homepage: appEnv.homepage,
+            description: appEnv.description,
+            use_version_info: true,
+            show_close_button: "Close",
+            bug_link_text: "Find bugs?",
+            bug_report_url: appEnv.bugs,
+          });
+        },
       },
       {
         label: "Electronについて",
