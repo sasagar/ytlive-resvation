@@ -1,5 +1,8 @@
 <template>
   <div class="dashboard">
+    <div class="back" @click="back">
+      <FontAwesomeIcon :icon="faChevronLeft" /> Back
+    </div>
     <FontAwesomeIcon @click="openModal" :icon="faCog" class="cog" />
     <h1>LiveDashboard</h1>
     <h2>{{ liveTitle }}</h2>
@@ -100,6 +103,7 @@ import draggable from "vuedraggable";
 
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
+  faChevronLeft,
   faCog,
   faUsersSlash,
   faAngleDoubleDown,
@@ -132,6 +136,7 @@ export default {
   data() {
     return {
       modal: false,
+      faChevronLeft,
       faCog,
       faUsersSlash,
       faAngleDoubleDown,
@@ -235,12 +240,16 @@ export default {
   },
   methods: {
     ...mapActions([
+      "changeView",
       "setNextPageToken",
       "setChatData",
       "setQueue",
       "setQueueSort",
       "setTimerInterval"
     ]),
+    back() {
+      this.changeView({ viewName: "LiveList" });
+    },
     sort() {
       this.list = this.list.sort((a, b) => a.order - b.order);
     },
@@ -440,6 +449,20 @@ h2 {
   height: calc(100vh - 150px);
 }
 
+.back {
+  color: rgba(120, 120, 120, 1);
+  position: fixed;
+  top: 5px;
+  left: 10px;
+  font-size: 25px;
+  cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: rgba(92, 92, 92, 1);
+  }
+}
+
 .cog {
   color: rgba(120, 120, 120, 1);
   position: fixed;
@@ -447,5 +470,10 @@ h2 {
   right: 10px;
   font-size: 25px;
   cursor: pointer;
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: rgba(92, 92, 92, 1);
+  }
 }
 </style>
