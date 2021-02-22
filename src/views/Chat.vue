@@ -1,6 +1,9 @@
 <template>
   <li>
     <div class="chatupper">
+      <span class="reserve" v-if="!reserved" @click="addPlayer(chat)">
+        <FontAwesomeIcon :icon="faUserPlus" />
+      </span>
       <img :src="chat.authorDetails.profileImageUrl" />
       <span class="name">
         {{ chat.authorDetails.displayName }}
@@ -14,14 +17,27 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions } from "vuex";
+import Messages from "../mixins/Messages";
 import moment from "moment";
+
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+import { faUserPlus } from "@fortawesome/free-solid-svg-icons";
 
 export default {
   name: "Chat",
+  components: {
+    FontAwesomeIcon
+  },
   props: {
     chat: Object
   },
+  data() {
+    return {
+      faUserPlus
+    };
+  },
+  mixins: [Messages],
   computed: {
     ...mapState(["status"]),
     date() {
@@ -32,12 +48,46 @@ export default {
     },
     formatTime() {
       return this.date.format("HH:mm:ss");
+    },
+    reserved() {
+      if (this.status.queue.length === 0) {
+        return false;
+      } else {
+        const res = this.status.queue.some(
+          player => player.channelId === this.chat.authorDetails.channelId
+        );
+        return res;
+      }
+    },
+    queue: {
+      get() {
+        return this.status.queue;
+      },
+      set(val) {
+        this.setQueueSort(val);
+      }
+    }
+  },
+  methods: {
+    ...mapActions(["setQueue"]),
+    async addPlayer(item) {
+      console.log("views/Chat/addPlayer");
+      const tempQueue = this.queue;
+
+      const user = item.authorDetails;
+      user["playing"] = false;
+      tempQueue.push(user);
+      await this.setQueue(tempQueue);
+      // Send reserve chat.
+      this.sendChat(
+        item.authorDetails.displayName + "さんの予約、受け付けましたー！"
+      );
     }
   }
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 li {
   border-top: solid 1px #bbbbbb;
   border-bottom: solid 1px #bbbbbb;
@@ -47,6 +97,16 @@ li {
     display: flex;
     justify-content: flex-start;
     align-items: center;
+    .reserve {
+      margin-right: 10px;
+      cursor: pointer;
+      color: #bbbbbb;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #00a7bd;
+      }
+    }
     img {
       width: 15px;
       height: auto;
