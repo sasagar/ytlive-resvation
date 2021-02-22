@@ -17,6 +17,7 @@ export default createStore({
       lives: {},
       currentLiveId: "",
       currentChatId: "",
+      currentTitle: "",
       nextPageToken: "",
       chatData: [],
       queue: [],
@@ -39,6 +40,10 @@ export default createStore({
     setCurrentChat(state, payload) {
       console.log("store/mutations/setCurrentChat");
       state.status.currentChatId = payload;
+    },
+    setCurrentTitle(state, payload) {
+      console.log("store/mutations/setCurrentTitle");
+      state.status.currentTitle = payload;
     },
     setNextPageToken(state, payload) {
       console.log("store/mutations/setNextPageToken");
@@ -92,6 +97,10 @@ export default createStore({
     setCurrentLive(context, payload) {
       console.log("store/actions/setCurrentLive");
       context.commit("setCurrentLive", payload);
+    },
+    setCurrentTitle(context, payload) {
+      console.log("store/actions/setCurrentTitle");
+      context.commit("setCurrentTitle", payload);
     },
     setCurrentChat(context, payload) {
       console.log("store/actions/setCurrentChat");

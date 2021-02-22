@@ -20,13 +20,20 @@
       >
         <FontAwesomeIcon :icon="faVolumeMute" />
       </span>
-      <span class="remove" @click="delUser(player)" title="予約取消">
-        <FontAwesomeIcon :icon="faUserMinus" class="user-del" />
-      </span>
       <span class="index">{{ index + 1 }}</span>
       <img :src="player.profileImageUrl" />
       <span class="name">
         {{ player.displayName }}
+      </span>
+      <span
+        class="user-del-silent"
+        @click="delUserSilent(player)"
+        title="予約取消（アナウンス無し）"
+      >
+        <FontAwesomeIcon :icon="faUserSlash" />
+      </span>
+      <span class="user-del" @click="delUser(player)" title="予約取消">
+        <FontAwesomeIcon :icon="faUserMinus" />
       </span>
     </div>
   </li>
@@ -39,6 +46,7 @@ import Messages from "../mixins/Messages";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
 import {
   faUserMinus,
+  faUserSlash,
   faVolumeUp,
   faVolumeMute,
   faAlignJustify
@@ -52,6 +60,7 @@ export default {
   data() {
     return {
       faUserMinus,
+      faUserSlash,
       faVolumeUp,
       faVolumeMute,
       faAlignJustify,
@@ -114,6 +123,13 @@ export default {
       await this.setQueue(newQueue);
       this.sendChat(player.displayName + "さんの予約、取り消しましたー！");
     },
+    async delUserSilent(player) {
+      const tempQueue = this.status.queue.slice();
+      const newQueue = tempQueue.filter(
+        user => user.channelId != player.channelId
+      );
+      await this.setQueue(newQueue);
+    },
     async requeueUser(player) {
       const tempQueue = this.status.queue.slice();
       let newQueue = tempQueue.filter(
@@ -171,16 +187,18 @@ li {
     }
 
     .user-page,
-    .user-mute {
+    .user-mute,
+    .user-del-silent {
       cursor: pointer;
-      padding: 5px;
       margin-right: 5px;
     }
 
     .user-handle,
     .user-page,
     .user-mute,
+    .user-del-silent,
     .user-del {
+      padding: 5px;
       transition: opacity 0.3s ease;
       &:hover {
         opacity: 0.75;
@@ -207,6 +225,8 @@ li {
     }
     .name {
       font-weight: 600;
+      flex: 1;
+      text-align: left;
     }
     .user-del {
       color: #f2636f;

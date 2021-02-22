@@ -1,5 +1,8 @@
 <template>
-  <tr class="live" @click="setCurrent(live.id, live.snippet.liveChatId)">
+  <tr
+    class="live"
+    @click="setCurrent(live.id, live.snippet.liveChatId, live.snippet.title)"
+  >
     <td>{{ formatDate }} {{ formatTime }}</td>
     <td>
       {{ live.snippet.title }}
@@ -29,12 +32,19 @@ export default {
     }
   },
   methods: {
-    ...mapActions(["changeView", "setCurrentLive", "setCurrentChat"]),
-    async setCurrent(liveId, liveChatId) {
+    ...mapActions([
+      "changeView",
+      "setCurrentLive",
+      "setCurrentChat",
+      "setCurrentTitle"
+    ]),
+    async setCurrent(liveId, liveChatId, liveTitle) {
       console.log("components/Live/setCurrent: Live = " + liveId);
       console.log("components/Live/setCurrent: Chat = " + liveChatId);
+      console.log("components/Live/setCurrent: Title = " + liveTitle);
       await this.setCurrentLive(liveId);
       await this.setCurrentChat(liveChatId);
+      await this.setCurrentTitle(liveTitle);
       this.changeView({ viewName: "LiveDashboard", id: liveChatId });
     }
   }

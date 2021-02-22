@@ -2,6 +2,7 @@
   <div class="dashboard">
     <FontAwesomeIcon @click="openModal" :icon="faCog" class="cog" />
     <h1>LiveDashboard</h1>
+    <h2>{{ liveTitle }}</h2>
 
     <!-- コンポーネント MyModal -->
     <SettingModal @close="closeModal" v-if="modal" />
@@ -188,6 +189,9 @@ export default {
     liveChatId() {
       return this.status.currentChatId;
     },
+    liveTitle() {
+      return this.status.currentTitle;
+    },
     chatData() {
       return this.status.chatData.slice().reverse();
     },
@@ -352,6 +356,12 @@ export default {
 <style lang="scss">
 .dashboard {
   height: 100%;
+}
+
+h2 {
+  font-size: 1.1rem;
+  margin-bottom: 20px;
+  text-decoration: underline;
 }
 
 .button {
