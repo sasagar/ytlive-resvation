@@ -10,6 +10,7 @@
       </li>
     </template>
   </ul>
+  <span class="over-queue-num" v-if="overQueue">{{ overQueue }}</span>
 </template>
 
 <script>
@@ -36,6 +37,11 @@ export default {
   computed: {
     limitQueue() {
       return this.queue.slice(0, this.numberOfPlaying + this.numberOfStandby);
+    },
+    overQueue() {
+      const overNum =
+        this.queue.length - (this.numberOfPlaying + this.numberOfStandby);
+      return overNum > 0 ? overNum : 0;
     }
   },
   mounted() {
@@ -100,6 +106,24 @@ ul {
     .name {
       text-align: left;
     }
+  }
+}
+
+.over-queue-num {
+  font-size: 24px;
+
+  &::before {
+    display: inline;
+    content: "他";
+    margin-right: 5px;
+    font-size: 18px;
+  }
+
+  &::after {
+    display: inline;
+    content: "名がお待ちです";
+    margin-left: 5px;
+    font-size: 18px;
   }
 }
 
