@@ -37,4 +37,10 @@ module.exports = {
       maxAssetSize: 500000,
     },
   },
+  pages: {
+    index: {
+      entry: "src/main.js",
+      title: "YouTube Live Reservation",
+    },
+  },
 };

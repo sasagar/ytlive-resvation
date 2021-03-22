@@ -116,14 +116,14 @@ ul {
     display: inline;
     content: "他";
     margin-right: 5px;
-    font-size: 18px;
+    font-size: 0.85em;
   }
 
   &::after {
     display: inline;
     content: "名がお待ちです";
     margin-left: 5px;
-    font-size: 18px;
+    font-size: 0.85em;
   }
 }
 
