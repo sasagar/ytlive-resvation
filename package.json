@@ -1,6 +1,6 @@
 {
   "name": "ytlive-reservation",
-  "version": "0.2.19",
+  "version": "0.2.20",
   "private": true,
   "description": "Reservation system for YouTube Live.",
   "author": {
